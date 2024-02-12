@@ -1,0 +1,103 @@
+﻿@model List<quiz.Models.QuizImport>
+
+<h2>Preview Imported Data</h2>
+@if (ViewBag.RowErrors != null)
+{
+    <div class="alert alert-danger alert-dismissible" id="errorAlert">
+        <a href="#" class="close" data-toggle="collapse" data-target="#errorDetails" aria-label="close">
+            <i class="fas fa-chevron-down"></i>
+        </a>
+        <a href="#errorDetails" data-toggle="collapse">
+            Errors detected. Click to view details.
+        </a>
+    </div>
+
+    <div class="collapse alert alert-danger" id="errorDetails">
+        <div class="alert alert-danger">
+            <!-- Your error messages here -->
+            @if (ViewBag.RowErrors != null)
+            {
+                foreach (var error in ViewBag.RowErrors)
+                {
+                    <p>@error</p>
+                }
+            }
+        </div>
+    </div>
+}
+
+@if (Model != null && Model.Any())
+{
+    using (Html.BeginForm("FinalImport", "QuizImporter", FormMethod.Post))
+    {
+        <input type="submit" value="Confirm Import" class="btn btn-success" />
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Category</th>
+                        <th scope="col">Quiz</th>
+                        <th scope="col">Questions</th>
+                        <th scope="col">Option1</th>
+                        <th scope="col">Option2</th>
+                        <th scope="col">Option3</th>
+                        <th scope="col">Option4</th>
+                        <th scope="col">Option5</th>
+                        <th scope="col">Correct Answer</th>
+                        <th scope="col">Feedback Text</th>
+                        <th scope="col">Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        <tr>
+                            @* For each property, use Html.EditorFor to make them form fields *@
+                            <td>@Html.EditorFor(model => model[i].Category)</td>
+                            <td>@Html.EditorFor(model => model[i].Quiz)</td>
+                            <td>@Html.EditorFor(model => model[i].Questions)</td>
+                            <td>@Html.EditorFor(model => model[i].Option1)</td>
+                            <td>@Html.EditorFor(model => model[i].Option2)</td>
+                            <td>@Html.EditorFor(model => model[i].Option3)</td>
+                            <td>@Html.EditorFor(model => model[i].Option4)</td>
+                            <td>@Html.EditorFor(model => model[i].Option5)</td>
+                            <td>@Html.EditorFor(model => model[i].CorrectAnswer)</td>
+                            <td>@Html.EditorFor(model => model[i].FeedbackText)</td>
+                            <td>@Html.EditorFor(model => model[i].Level)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <input type="submit" value="Confirm Import" class="btn btn-success" />
+    }
+}
+else
+{
+    <p>No data available to preview.</p>
+}
+
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#errorAlert').on('click', function () {
+                var details = $('#errorDetails');
+                if (details.hasClass('show')) {
+                    details.collapse('hide');
+                    
+                   
+                } else {
+                    details.collapse('show');
+
+                }
+            });
+
+            // This will close the expanded error details when the alert is dismissed.
+            $('.close').on('click', function () {
+                $('#errorDetails').collapse('hide');
+            });
+        });
+    </script>
+}
+

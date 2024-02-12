@@ -1,0 +1,203 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Registre";
+}
+
+<div id="layoutAuthentication">
+    <div id="layoutAuthentication_content">
+        <div>
+            <div class="container">
+                <div id="notificationDiv" class="alert alert-danger d-none" role="alert">
+                    <!-- Message will be inserted here -->
+                </div>
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+
+
+                <div class="row justify-content-center">
+                    <div class="col-lg-7">
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header"><h3 class="text-center font-weight-light my-4">Create Account</h3></div>
+                            <div class="card-body">
+                                <form asp-controller="Authentication" asp-action="Register" method="post">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3 mb-md-0">
+                                                <input class="form-control" id="inputFirstName" name="UserQuizUsername" type="text" placeholder="Enter your first name" />
+                                                <label for="inputFirstName">First name</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input class="form-control" id="inputLastName" type="text" placeholder="Enter your last name" />
+                                                <label for="inputLastName">Last name</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input class="form-control" id="inputEmail" type="email" name="UserQuizEmail" placeholder="name@example.com" />
+                                        <label for="inputEmail">Email address</label>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3 mb-md-0">
+                                                <input class="form-control" id="inputPassword" name="UserQuizPassword" type="password" placeholder="Create a password" />
+                                                <label for="inputPassword">Password</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3 mb-md-0">
+                                                <input class="form-control" id="inputPasswordConfirm" type="password" placeholder="Confirm password" />
+                                                <label for="inputPasswordConfirm">Confirm Password</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 mb-0">
+                                        <div class="d-grid">
+                                            <button class="btn btn-primary btn-block" type="submit" id="createAccountButton">Create Account</button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                            </div>
+                            <div class="card-footer text-center py-3">
+                                <div class="small"><a href="/Home/Login">Have an account? Go to login</a></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+
+            // Function to validate individual input
+            function validateInput(input) {
+                var value = $(input).val().trim();
+                var inputId = $(input).attr('id');
+                var message = '';
+
+                switch (inputId) {
+                    case 'inputFirstName':
+                        if (value === '') message = 'First name is required.';
+                        break;
+                    case 'inputLastName':
+                        if (value === '') message = 'Last name is required.';
+                        break;
+                    case 'inputEmail':
+                        if (value === '') {
+                            message = 'Email address is required.';
+                        }
+                        break;
+                    case 'inputPassword':
+                        if (value === '') {
+                            message = 'Password is required.';
+                        }
+                        break;
+                    case 'inputPasswordConfirm':
+                        if (value === '') {
+                            message = 'Confirm password is required.';
+                        } else if (value !== $('#inputPassword').val()) {
+                            message = 'Passwords do not match.';
+                        }
+                        break;
+                }
+
+                return message;
+            }
+            function setButtonState(isFormValid) {
+                if (isFormValid) {
+                    $('#createAccountButton').removeAttr('disabled');
+                    
+                } else {
+                    $('#createAccountButton').attr('disabled', 'disabled');
+                }
+            }
+
+            // Function to check overall form validity and adjust submit button
+            function checkFormValidity() {
+                var isFormValid = true;
+                $('form input').each(function () {
+                    var errorMessage = validateInput(this);
+                    if (errorMessage !== '') {
+                        isFormValid = false;
+                        return false; // Break the loop
+                    }
+                });
+
+
+                setButtonState(isFormValid)
+            }
+
+            // Validate individual input on blur
+            $('input').blur(function () {
+                var errorMessage = validateInput(this);
+                if (errorMessage !== '') {
+                    $('#notificationDiv').text(errorMessage).removeClass('d-none');
+                } else {
+                    $('#notificationDiv').addClass('d-none').text('');
+                }
+                checkFormValidity(); // Re-check form validity to decide on the submit button
+            }).keyup(function () {
+                $('#notificationDiv').addClass('d-none').text(''); // Clear message on keyup
+                checkFormValidity(); // Also check form validity on keyup
+            });
+
+            // Specific email validation on blur to include AJAX check
+            $('#inputEmail').blur(function () {
+                var email = $(this).val().trim();
+                if (email !== '') {
+                    // AJAX call to verify the email
+                    $.ajax({
+                        url: '/Authentication/VerifyEmail',
+                        type: 'GET',
+                        data: { email: email },
+                        success: function (response) {
+                            if (response.exists) {
+                                $('#notificationDiv').text('Email is already taken.').removeClass('d-none');
+                                $('#createAccountButton').prop('disabled', true);
+                            } else {
+                                $('#notificationDiv').addClass('d-none');
+                                checkFormValidity(); // Re-validate to potentially enable the button
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("An error occurred: " + error);
+                            $('#notificationDiv').text('An error occurred. Please try again.').removeClass('d-none');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

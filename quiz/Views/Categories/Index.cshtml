@@ -1,0 +1,48 @@
+@model IEnumerable<quiz.Models.Category>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Dashboard</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active"><a asp-controller="Admin" asp-action="AdminPanel" style="color: inherit; text-decoration: none;">Admin Panel</a></li>
+        <li class="breadcrumb-item active">Category</li>
+    </ol>
+
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.CategoryName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CategoryIsActive)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CategoryName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CategoryIsActive)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.CategoryId">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.CategoryId">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.CategoryId">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

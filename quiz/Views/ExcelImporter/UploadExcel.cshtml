@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = "Upload Excel File";
+}
+
+<h2>Upload Excel File</h2>
+@if (ViewBag.RowErrors != null)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewBag.RowErrors)
+        {
+            <p>@error</p>
+        }
+    </div>
+}
+
+
+@using (Html.BeginForm("Import", "QuizImporter", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <label for="file">Upload Excel File:</label>
+    <input type="file" name="file" required />
+    <input type="submit" value="Upload" />
+}

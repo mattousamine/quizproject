@@ -1,0 +1,136 @@
+﻿@model AdminPanelCount
+@{
+    ViewData["Title"] = "Admin Panel";
+}
+
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Admin Panel</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Admin Panel</li>
+    </ol>
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">Category <span class="large">(@Model.CategoryCount)</span></div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" asp-controller="Categories" asp-action="Index">Manage</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">Quiz <span class="large">(@Model.QuizCount)</span></div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" asp-controller="Quizzes" asp-action="Index">Manage</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">Question <span class="large">(@Model.QuestionCount)</span></div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" asp-controller="Questions" asp-action="Index">Manage</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">Option <span class="large">(@Model.OptionCount)</span></div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" asp-controller="Options" asp-action="Index">Manage</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Bar Chart Stats
+                </div>
+                <div class="card-body"><canvas id="myBarChart" width="100%" height="50"></canvas></div>
+                <div class="card-footer small text-muted">Updated @DateTime.Now.ToString("MMMM dd, yyyy 'at' hh:mm tt")</div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-pie me-1"></i>
+                    Pie Chart Stats
+                </div>
+                <div class="card-body"><canvas id="myPieChart" width="100%" height="50"></canvas></div>
+                <div class="card-footer small text-muted">Updated @DateTime.Now.ToString("MMMM dd, yyyy 'at' hh:mm tt")</div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Displaying User Quizzes -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-users me-1"></i>
+            Users
+            <a href="@Url.Action("Index", "UserQuizzes")" title="Manage Users" style="margin-left: 10px;">
+                <i class="fas fa-cog"></i>
+            </a>
+        </div>
+        <div class="card-body">
+            <table id="datatablesSimple">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Is Admin</th>
+                        <th>Is Active</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model != null && Model.Quizzes.Any())
+                    {
+                        foreach (var userQuiz in Model.Quizzes)
+                        {
+                            <tr>
+                                <td>@userQuiz.UserQuizUsername</td>
+                                <td>@userQuiz.UserQuizEmail</td>
+                                <td>@(userQuiz.UserQuizIsAdmin ? "Yes" : "No")</td>
+                                <td>@(userQuiz.UserQuizIsActive ? "Yes" : "No")</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">No user quizzes found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @section Scripts {
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+
+        <script>
+            $(document).ready(function () {
+                $('#datatablesSimple').DataTable();
+            });
+
+        </script>
+        
+        <script src="~/js/chart-pie.js"></script>
+        <script src="~/js/chart-bar.js"></script>
+    }
+
+
+
+
+

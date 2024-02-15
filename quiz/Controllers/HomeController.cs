@@ -46,9 +46,6 @@ namespace quiz.Controllers
         }
         public IActionResult Login()
         {
-            TempData["SuccessMessage"] = null;
-            TempData["logOutMessage"] = null;
-            TempData["ErrorMessage"] = null;
             return View();
         }
         public IActionResult Password()

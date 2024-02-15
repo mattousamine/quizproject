@@ -55,8 +55,8 @@
 </style>
 
 <div class="container">
-    <h2 class="mt-4 mb-3"><strong>All Categories <span class="badge badge-secondary">(@ViewBag.CategoriesWithQuizzes.Count)</span></strong></h2>
-    @if (ViewBag.CategoriesWithQuizzes != null)
+    <h2 class="mt-4 mb-3"><strong>All Categories <span class="badge badge-secondary" style="color:black">(@ViewBag.CategoriesWithQuizzes.Count)</span></strong></h2>
+    @if (ViewBag.CategoriesWithQuizzes.Count > 0)
     {
         foreach (var category in ViewBag.CategoriesWithQuizzes)
         {

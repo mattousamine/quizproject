@@ -12,6 +12,7 @@ namespace quiz.DAL
         public DbSet<UserQuiz> UserQuizzes { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
+        public DbSet<QuizImg> QuizImg { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<Option> Options { get; set; }
         public DbSet<QuizSession> QuizSessions { get; set; }
@@ -30,6 +31,7 @@ namespace quiz.DAL
             modelBuilder.Entity<UserQuiz>().HasKey(uq => uq.UserQuizId);
             modelBuilder.Entity<Category>().HasKey(c => c.CategoryId);
             modelBuilder.Entity<Quiz>().HasKey(q => q.QuizId);
+            modelBuilder.Entity<QuizImg>().HasKey(qi => qi.ImgId);
             modelBuilder.Entity<Question>().HasKey(q => q.QuestionId);
             modelBuilder.Entity<Option>().HasKey(o => o.OptionId);
             modelBuilder.Entity<QuizSession>().HasKey(qs => qs.QuizSessionId);

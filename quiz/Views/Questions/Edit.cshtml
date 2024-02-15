@@ -39,6 +39,27 @@
                     </label>
                 </div>
                 <div class="form-group">
+                    <label for="selectedQuizzes">Associated Quizzes</label>
+                    <select id="selectedQuizzes" name="selectedQuizzes[]" class="form-control" multiple>
+                        @{
+                            var allQuizzes = ViewBag.AllQuizzes as SelectList;
+                            var selectedQuizzes = ViewBag.SelectedQuizzes as List<int>;
+
+                            foreach (var quiz in allQuizzes)
+                            {
+                                bool isSelected = selectedQuizzes.Contains(int.Parse(quiz.Value));
+                                string optionTag = $"<option value=\"{quiz.Value}\"" + (isSelected ? " selected" : "") + $">{quiz.Text}</option>";
+
+                                @Html.Raw(optionTag)
+                            }
+                        }
+                    </select>
+
+
+
+
+                </div>
+                <div class="form-group">
                     <input type="submit" value="Save" class="btn btn-primary" />
                 </div>
             </form>

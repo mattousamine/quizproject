@@ -35,11 +35,30 @@ namespace quiz.Controllers
                 return NotFound();
             }
 
-            var option = await _context.Options
-                .FirstOrDefaultAsync(m => m.OptionId == id);
+            var option = await _context.Options.FirstOrDefaultAsync(m => m.OptionId == id);
             if (option == null)
             {
                 return NotFound();
+            }
+
+            // Query the QuestionOptions to find the associated question ID
+            var questionOption = await _context.QuestionOptions
+                .Where(qo => qo.OptionId == id)
+                .FirstOrDefaultAsync();
+
+            if (questionOption != null)
+            {
+                // Retrieve the associated Question details
+                var question = await _context.Questions
+                    .Where(q => q.QuestionId == questionOption.QuestionId)
+                    .FirstOrDefaultAsync();
+
+                if (question != null)
+                {
+                    // Pass the associated Question details to the view
+                    ViewBag.AssociatedQuestionText = question.QuestionText;
+                    ViewBag.AssociatedQuestionId = question.QuestionId;
+                }
             }
 
             return View(option);
@@ -48,6 +67,7 @@ namespace quiz.Controllers
         // GET: Options/Create
         public IActionResult Create()
         {
+            ViewBag.QuestionId = new SelectList(_context.Questions, "QuestionId", "QuestionText");
             return View();
         }
 
@@ -56,16 +76,31 @@ namespace quiz.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OptionId,OptionText,OptionIsCorrect")] Option option)
+        public async Task<IActionResult> Create([Bind("OptionId,OptionText,OptionIsCorrect")] Option option, int questionId)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(option);
+                _context.Options.Add(option);
                 await _context.SaveChangesAsync();
+
+                // Assuming OptionId is set automatically by the database upon saving the option
+                var questionOption = new QuestionOption
+                {
+                    QuestionId = questionId,
+                    OptionId = option.OptionId
+                };
+
+                _context.QuestionOptions.Add(questionOption);
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
+
+            // If we get here, something was wrong with the form, so send back the form with the list of questions
+            ViewBag.QuestionId = new SelectList(_context.Questions, "QuestionId", "QuestionText", questionId);
             return View(option);
         }
+
 
         // GET: Options/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -80,15 +115,25 @@ namespace quiz.Controllers
             {
                 return NotFound();
             }
+
+            // Find the current associated question for the option
+            var questionOption = await _context.QuestionOptions
+                .FirstOrDefaultAsync(qo => qo.OptionId == id);
+            ViewBag.CurrentQuestionId = questionOption?.QuestionId;
+
+            // Provide a list of questions for dropdown
+            ViewBag.QuestionId = new SelectList(_context.Questions, "QuestionId", "QuestionText", ViewBag.CurrentQuestionId);
+
             return View(option);
         }
+
 
         // POST: Options/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OptionId,OptionText,OptionIsCorrect")] Option option)
+        public async Task<IActionResult> Edit(int id, [Bind("OptionId,OptionText,OptionIsCorrect")] Option option, int QuestionId)
         {
             if (id != option.OptionId)
             {
@@ -100,6 +145,22 @@ namespace quiz.Controllers
                 try
                 {
                     _context.Update(option);
+                    await _context.SaveChangesAsync();
+
+                    // Update the question-option association
+                    var questionOption = await _context.QuestionOptions
+                        .FirstOrDefaultAsync(qo => qo.OptionId == option.OptionId);
+                    if (questionOption != null)
+                    {
+                        questionOption.QuestionId = QuestionId; // Update association
+                        _context.Update(questionOption);
+                    }
+                    else
+                    {
+                        // If there was no previous association, create a new one
+                        _context.QuestionOptions.Add(new QuestionOption { OptionId = option.OptionId, QuestionId = QuestionId });
+                    }
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -115,8 +176,13 @@ namespace quiz.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            // Repopulate ViewBag if returning to view due to validation error
+            ViewBag.QuestionId = new SelectList(_context.Questions, "QuestionId", "QuestionText", QuestionId);
+
             return View(option);
         }
+
 
         // GET: Options/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -145,15 +211,29 @@ namespace quiz.Controllers
             {
                 return Problem("Entity set 'QuizContext.Options'  is null.");
             }
+
+            // Find any QuestionOptions associations for the option
+            var questionOptions = await _context.QuestionOptions
+                .Where(qo => qo.OptionId == id)
+                .ToListAsync();
+
+            // If any associations exist, remove them
+            if (questionOptions.Any())
+            {
+                _context.QuestionOptions.RemoveRange(questionOptions);
+                await _context.SaveChangesAsync(); // Ensure associations are removed before deleting the option
+            }
+
             var option = await _context.Options.FindAsync(id);
             if (option != null)
             {
                 _context.Options.Remove(option);
+                await _context.SaveChangesAsync();
             }
-            
-            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
+
 
         private bool OptionExists(int id)
         {

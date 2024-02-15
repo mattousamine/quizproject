@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Create";
+    bool quizzesExist = ViewBag.QuizzesExist;
+    string errorMessage = ViewBag.ErrorMessage;
 }
 <div class="container-fluid px-4">
     <h1 class="mt-4">Dashboard</h1>
@@ -14,34 +16,47 @@
     <h4>Question</h4>
     <hr />
     <div class="row">
-        <div class="col-md-4">
-            <form asp-action="Create">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
-                    <label asp-for="QuestionText" class="control-label"></label>
-                    <input asp-for="QuestionText" class="form-control" />
-                    <span asp-validation-for="QuestionText" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="QuestionFeedback" class="control-label"></label>
-                    <input asp-for="QuestionFeedback" class="form-control" />
-                    <span asp-validation-for="QuestionFeedback" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="QuestionLevel" class="control-label"></label>
-                    <input asp-for="QuestionLevel" class="form-control" />
-                    <span asp-validation-for="QuestionLevel" class="text-danger"></span>
-                </div>
-                <div class="form-group form-check">
-                    <label class="form-check-label">
-                        <input class="form-check-input" asp-for="QuestionIsActive" /> @Html.DisplayNameFor(model => model.QuestionIsActive)
-                    </label>
-                </div>
-                <div class="form-group">
-                    <input type="submit" value="Create" class="btn btn-primary" />
-                </div>
-            </form>
-        </div>
+        @if (quizzesExist)
+        {
+            <div class="col-md-4">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="QuestionText" class="control-label"></label>
+                        <input asp-for="QuestionText" class="form-control" />
+                        <span asp-validation-for="QuestionText" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="QuestionFeedback" class="control-label"></label>
+                        <input asp-for="QuestionFeedback" class="form-control" />
+                        <span asp-validation-for="QuestionFeedback" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="QuestionLevel" class="control-label"></label>
+                        <input asp-for="QuestionLevel" class="form-control" />
+                        <span asp-validation-for="QuestionLevel" class="text-danger"></span>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="QuestionIsActive" /> @Html.DisplayNameFor(model => model.QuestionIsActive)
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="selectedQuizzes">Select Quiz</label>
+                        <select id="selectedQuizzes" name="selectedQuizzes" class="form-control" multiple asp-items="ViewBag.Quizzes"></select>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                @errorMessage
+            </div>
+        }
     </div>
 
     <div>

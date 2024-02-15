@@ -449,23 +449,23 @@
     const data = {
         questions: [
             {
-                text: "La POO(Programmation Orientée  Objet) est",
+                text: "La POO(Programmation Orientee  Objet) est",
                 options: ["Un paradigme de programmation", "Un langage de programmation"],
                 correctAnswer: "Un paradigme de programmation"
             },
             {
-                text: "La generalisation permet a des sous-classe de derriver et ainsi de finir des sous-classes plus spécifiques.",
-                options: ["VRAI", "permet a des sous-classe de derriver et ainsi de finir des sous-classes plus spécifiques."],
+                text: "La generalisation permet a des sous-classe de derriver et ainsi de finir des sous-classes plus specifiques.",
+                options: ["VRAI", "permet a des sous-classe de derriver et ainsi de finir des sous-classes plus specifiques."],
                 correctAnswer: "VRAI"
             },
 
         ],
         answers: {
-            "Un paradigme de programmation": ["La POO(Programmation Orientée  Objet) est"],
+            "Un paradigme de programmation": ["La POO(Programmation Orientee  Objet) est"],
             "Un langage de programmation": [],
 
-            "permet a des sous-classe de derriver et ainsi de finir des sous-classes plus spécifiques.": [],
-            "VRAI": ["La generalisation permet a des sous-classe de derriver et ainsi de finir des sous-classes plus spécifiques."],
+            "permet a des sous-classe de derriver et ainsi de finir des sous-classes plus specifiques.": [],
+            "VRAI": ["La generalisation permet a des sous-classe de derriver et ainsi de finir des sous-classes plus specifiques."],
         }
     };
 
@@ -498,9 +498,9 @@
         const correctorno = data.answers[opt].includes(q);
 
         if (correctorno) {
-            document.querySelector("#feedback").innerHTML = "<span>Félicitations - vous avez bien répondu !</span>";
+            document.querySelector("#feedback").innerHTML = "<span>Felicitations - vous avez bien repondu !</span>";
         } else {
-            document.querySelector("#feedback").innerHTML = "<span>Oh non - cela était incorrect</span>";
+            document.querySelector("#feedback").innerHTML = "<span>Oh non - cela etait incorrect</span>";
         }
 
         document.querySelector("#feedback").classList.add("anim");
@@ -529,19 +529,19 @@
     }
     function setupQuiz() {
         quiz.innerHTML += `<div id="start">
-        <div class="detail">Press the “play” button to begin sorting the statement in the circle into the column it belongs to</div>
-        <div class="circle"><span>Are you ready?</span></div>
-        <button id="startBtn" onclick="reset()">Start</button>
-      <div>`
+            <div class="detail">Press the “play” button to begin sorting the statement in the circle into the column it belongs to</div>
+            <div class="circle"><span>Are you ready?</span></div>
+            <button id="startBtn" onclick="reset()">Start</button>
+          <div>`
         quizQuestionSetup();
         quiz.innerHTML += `<div id="questions" class="hidden">
-      ${quizQuestionSetup()}</div>`
+          ${quizQuestionSetup()}</div>`
 
         quiz.innerHTML += ` <div id="end" class="hidden">
-      <div class="circle"><span>Well done!</span></div>
-      <div class="detail"></div>
-        <button id="retryBtn" onclick="reset()">Retry</button>
-      <div>`
+          <div class="circle"><span>Well done!</span></div>
+          <div class="detail"></div>
+            <button id="retryBtn" onclick="reset()">Retry</button>
+          <div>`
         quiz.innerHTML += `<div id="feedback" aria-live="polite"><div>`
         document.querySelector("#feedback").addEventListener("animationend", function (e) {
             animEnd(e)
@@ -592,12 +592,12 @@
             const question = sortedQs[q];
             const circleSize = Math.max(100, question.text.length * 10);
             questionHtml += `<div id="slide${q}" tabindex="0" class="slide ${(Number(q) === 0) ? '' : 'hidden'}">
-        <fieldset>
-          <legend class="lgnd"><span>${question.text}</span></legend>
-          <button class="optBtn" onclick="check('${question.options[0]}','${question.text}');document.querySelector('#questions').classList.add('animCircLeft');" data-opt="${question.options[0]}" data-q="${question.text}">${question.options[0]}</button>
-          <button class="optBtn" onclick="check('${question.options[1]}','${question.text}');document.querySelector('#questions').classList.add('animCircRight');" data-opt="${question.options[1]}" data-q="${question.text}">${question.options[1]}</button>
-        </fieldset>
-    </div>`;
+            <fieldset>
+              <legend class="lgnd"><span>${question.text}</span></legend>
+              <button class="optBtn" onclick="check('${question.options[0]}','${question.text}');document.querySelector('#questions').classList.add('animCircLeft');" data-opt="${question.options[0]}" data-q="${question.text}">${question.options[0]}</button>
+              <button class="optBtn" onclick="check('${question.options[1]}','${question.text}');document.querySelector('#questions').classList.add('animCircRight');" data-opt="${question.options[1]}" data-q="${question.text}">${question.options[1]}</button>
+            </fieldset>
+        </div>`;
 
         }
         return questionHtml;

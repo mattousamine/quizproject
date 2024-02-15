@@ -193,7 +193,6 @@ namespace quiz.Controllers
 
 
                 // Check if Quiz exists, if not create it
-                // Check if Quiz exists, if not create it
                 var normalizedQuizName = import.Quiz.Trim().ToLower();
                 var quiz = _context.Quizzes
                     .FirstOrDefault(q => q.QuizName.Trim().ToLower() == normalizedQuizName);
@@ -237,6 +236,8 @@ namespace quiz.Controllers
                 // Process Options
                 var correctAnswers = import.CorrectAnswer.Split('.').Select(int.Parse).ToList();
                 var optionsText = new[] { import.Option1, import.Option2, import.Option3, import.Option4, import.Option5 };
+                List<Option> optionsForThisQuestion = new List<Option>();
+
 
                 for (int i = 0; i < optionsText.Length; i++)
                 {
@@ -248,6 +249,7 @@ namespace quiz.Controllers
                             OptionIsCorrect = correctAnswers.Contains(i + 1)
                         };
 
+                        optionsForThisQuestion.Add(option);
                         _context.Options.Add(option);
                     }
                 }
@@ -256,7 +258,7 @@ namespace quiz.Controllers
                 _context.SaveChanges();
 
                 // Now, associate options with the question
-                foreach (var option in _context.Options.Local) // This considers only options added in the current context
+                foreach (var option in optionsForThisQuestion) // This considers only options added in the current context
                 {
                     _context.QuestionOptions.Add(new QuestionOption { QuestionId = question.QuestionId, OptionId = option.OptionId });
                 }

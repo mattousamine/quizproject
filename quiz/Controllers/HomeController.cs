@@ -35,8 +35,8 @@ namespace quiz.Controllers
             }
             else
             {
-                // If the user is logged in and not an admin, stay on the Index page
-                return View();
+                // If the user is logged in and not an admin, go user home page action in quizzes controller
+                return RedirectToAction("userHomePage", "Quizzes");
             }
         }
 

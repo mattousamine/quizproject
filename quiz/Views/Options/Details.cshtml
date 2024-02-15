@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Details";
+    var associatedQuestionText = ViewBag.AssociatedQuestionText as string;
+    var associatedQuestionId = ViewBag.AssociatedQuestionId as int?;
 }
 <div class="container-fluid px-4">
     <h1 class="mt-4">Dashboard</h1>
@@ -27,6 +29,17 @@
             <dd class="col-sm-10">
                 @Html.DisplayFor(model => model.OptionIsCorrect)
             </dd>
+            @if (!string.IsNullOrEmpty(associatedQuestionText))
+            {
+                <dt class="col-sm-2">Associated Question</dt>
+                <dd class="col-sm-10">
+                    @associatedQuestionText
+                    @if (associatedQuestionId.HasValue)
+                    {
+                        @: - <a href="@Url.Action("Details", "Questions", new { id = associatedQuestionId })">View Question</a>
+                    }
+                </dd>
+            }
         </dl>
     </div>
     <div>

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Create";
+    var questionsExist = ViewBag.QuestionId != null && ((SelectList)ViewBag.QuestionId).Any();
 }
 <div class="container-fluid px-4">
     <h1 class="mt-4">Dashboard</h1>
@@ -14,8 +15,10 @@
     <h4>Option</h4>
     <hr />
     <div class="row">
-        <div class="col-md-4">
-            <form asp-action="Create">
+        @if (questionsExist)
+        {
+            <div class="col-md-4">
+                <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
                     <label asp-for="OptionText" class="control-label"></label>
@@ -28,10 +31,21 @@
                     </label>
                 </div>
                 <div class="form-group">
+                    <label for="questionId">Question</label>
+                    <select name="questionId" asp-items="ViewBag.QuestionId" class="form-control"></select>
+                </div>
+                <div class="form-group">
                     <input type="submit" value="Create" class="btn btn-primary" />
                 </div>
             </form>
         </div>
+        }
+        else
+        {
+            <div class="alert alert-warning" role="alert">
+                No questions available. You must <a href="@Url.Action("Create", "Questions")" class="alert-link">create a question</a> before creating an option.
+            </div>
+        }
     </div>
 
     <div>

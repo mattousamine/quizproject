@@ -41,6 +41,22 @@ namespace quiz.Controllers
             {
                 return NotFound();
             }
+            // Find the quiz IDs associated with this question
+            var associatedQuizIds = await _context.QuizQuestions
+                .Where(qq => qq.QuestionId == id)
+                .Select(qq => qq.QuizId)
+                .ToListAsync();
+
+            // If you need to get quiz names or other properties, you can query the Quizzes DbSet
+            // For example, to get quiz names:
+            var associatedQuizNames = await _context.Quizzes
+                .Where(q => associatedQuizIds.Contains(q.QuizId))
+                .Select(q => q.QuizName)
+                .ToListAsync();
+
+            // Put the associated quiz IDs or quiz names in the ViewBag
+            ViewBag.AssociatedQuizIds = associatedQuizIds;  // For IDs
+            ViewBag.AssociatedQuizNames = associatedQuizNames;  // For names
 
             return View(question);
         }
@@ -48,6 +64,17 @@ namespace quiz.Controllers
         // GET: Questions/Create
         public IActionResult Create()
         {
+            var quizzes = _context.Quizzes.ToList();
+            if (quizzes.Any())
+            {
+                ViewBag.Quizzes = new SelectList(quizzes, "QuizId", "QuizName");
+                ViewBag.QuizzesExist = true;
+            }
+            else
+            {
+                ViewBag.QuizzesExist = false;
+                ViewBag.ErrorMessage = "You must create a quiz before creating a question.";
+            }
             return View();
         }
 
@@ -56,12 +83,20 @@ namespace quiz.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("QuestionId,QuestionText,QuestionFeedback,QuestionLevel,QuestionIsActive")] Question question)
+        public async Task<IActionResult> Create([Bind("QuestionId,QuestionText,QuestionFeedback,QuestionLevel,QuestionIsActive")] Question question, int[] selectedQuizzes)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(question);
                 await _context.SaveChangesAsync();
+
+                // After saving the question, add connections to selected quizzes
+                foreach (var quizId in selectedQuizzes)
+                {
+                    _context.QuizQuestions.Add(new QuizQuestion { QuestionId = question.QuestionId, QuizId = quizId });
+                }
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             return View(question);
@@ -80,6 +115,15 @@ namespace quiz.Controllers
             {
                 return NotFound();
             }
+            // Get a list of all quizzes to allow the user to choose which quizzes this question belongs to
+            ViewBag.AllQuizzes = new SelectList(await _context.Quizzes.ToListAsync(), "QuizId", "QuizName");
+
+            // Find out which quizzes the question is currently associated with
+            ViewBag.SelectedQuizzes = await _context.QuizQuestions
+                .Where(qq => qq.QuestionId == id)
+                .Select(qq => qq.QuizId)
+                .ToListAsync();
+
             return View(question);
         }
 
@@ -88,7 +132,7 @@ namespace quiz.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("QuestionId,QuestionText,QuestionFeedback,QuestionLevel,QuestionIsActive")] Question question)
+        public async Task<IActionResult> Edit(int id, [Bind("QuestionId,QuestionText,QuestionFeedback,QuestionLevel,QuestionIsActive")] Question question, int[] selectedQuizzes)
         {
             if (id != question.QuestionId)
             {
@@ -99,7 +143,22 @@ namespace quiz.Controllers
             {
                 try
                 {
+                    // Update the question itself
                     _context.Update(question);
+                    await _context.SaveChangesAsync();
+
+                    // Get the current quiz-question connections for this question
+                    var currentQuizQuestions = _context.QuizQuestions.Where(qq => qq.QuestionId == id);
+
+                    // Remove the old connections
+                    _context.QuizQuestions.RemoveRange(currentQuizQuestions);
+
+                    // Add the new connections based on the user's selection
+                    foreach (var quizId in selectedQuizzes)
+                    {
+                        _context.QuizQuestions.Add(new QuizQuestion { QuestionId = id, QuizId = quizId });
+                    }
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -115,6 +174,14 @@ namespace quiz.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            // If we got this far, something failed, so reload the data for the view
+            ViewBag.AllQuizzes = new SelectList(await _context.Quizzes.ToListAsync(), "QuizId", "QuizName");
+            ViewBag.SelectedQuizzes = await _context.QuizQuestions
+                .Where(qq => qq.QuestionId == id)
+                .Select(qq => qq.QuizId)
+                .ToListAsync();
+
             return View(question);
         }
 
@@ -148,6 +215,9 @@ namespace quiz.Controllers
             var question = await _context.Questions.FindAsync(id);
             if (question != null)
             {
+                var quizQuestions = _context.QuizQuestions.Where(qq => qq.QuestionId == id);
+                _context.QuizQuestions.RemoveRange(quizQuestions);
+
                 _context.Questions.Remove(question);
             }
             

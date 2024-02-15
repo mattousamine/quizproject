@@ -258,6 +258,11 @@ INSERT INTO `user_quiz`
 VALUES 
 ('user', '04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb', 'user@user.com', 0, 1);
 
+INSERT INTO `user_quiz` 
+(`user_quiz_username`, `user_quiz_password`, `user_quiz_email`, `user_quiz_is_admin`, `user_quiz_is_active`) 
+VALUES 
+('admin', '04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb', 'admin@admin.com', 1, 1);
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;

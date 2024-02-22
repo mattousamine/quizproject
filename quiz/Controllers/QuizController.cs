@@ -86,6 +86,11 @@ namespace quiz.Controllers
         {
             return View();
         }
+        public IActionResult Callquiz()
+        {
+            return View();
+        }
+
         public IActionResult Multiple()
         {
             return View();

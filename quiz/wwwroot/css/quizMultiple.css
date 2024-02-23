@@ -12,22 +12,20 @@ body {
 .container {
     width: 95%;
     max-width: 64rem;
+    margin: 2rem auto;
     background: #fff;
     padding: 0.8rem;
     border-radius: 1rem;
     overflow: auto;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     display: grid;
     gap: 1rem;
-    grid-template-columns: 2fr 2fr 1.5fr;
-    grid-template-rows: 0.1fr 2fr 1fr;
+    grid-template-columns: 1fr; /* Single column layout */
+    grid-template-rows: auto auto auto; /* Define the height for each row */
     grid-template-areas:
-        "quiz-title quiz-title quiz-title"
-        "question-section question-section questions-nav-section"
-        "explanation-section explanation-section questions-nav-section";
+        "quiz-title"
+        "question-section"
+        "explanation-section"
+        "questions-nav-section";
 }
 
 .quiz-title {
@@ -185,4 +183,13 @@ body {
 .question-nums-list a.active {
     background: #3586ff;
     /* Bleu pour la question active */
+}
+@media screen and (min-width: 768px) {
+    .container {
+        grid-template-columns: 2fr 1fr; /* Adjust the number of columns for larger screens */
+        grid-template-areas:
+            "quiz-title quiz-title"
+            "question-section questions-nav-section"
+            "explanation-section questions-nav-section";
+    }
 }

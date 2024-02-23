@@ -445,31 +445,8 @@
 <div id="quiz">
 </div>
 
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-    const data = {
-        questions: [
-            {
-                text: "La POO(Programmation Orientee  Objet) est",
-                options: ["Un paradigme de programmation", "Un langage de programmation"],
-                correctAnswer: "Un paradigme de programmation"
-            },
-            {
-                text: "La generalisation permet a des sous-classe de derriver et ainsi de finir des sous-classes plus specifiques.",
-                options: ["VRAI", "permet a des sous-classe de derriver et ainsi de finir des sous-classes plus specifiques."],
-                correctAnswer: "VRAI"
-            },
-
-        ],
-        answers: {
-            "Un paradigme de programmation": ["La POO(Programmation Orientee  Objet) est"],
-            "Un langage de programmation": [],
-
-            "permet a des sous-classe de derriver et ainsi de finir des sous-classes plus specifiques.": [],
-            "VRAI": ["La generalisation permet a des sous-classe de derriver et ainsi de finir des sous-classes plus specifiques."],
-        }
-    };
-
     const quiz = document.querySelector("#quiz");
     const slides = document.querySelectorAll(".slide");
     const score = {
@@ -496,7 +473,8 @@
         updateScore(feedback(opt, q));
     }
     function feedback(opt, q) {
-        const correctorno = data.answers[opt].includes(q);
+        const answers = data.answers[opt] || [];
+        const correctorno = answers.includes(q);
 
         if (correctorno) {
             document.querySelector("#feedback").innerHTML = "<span>Felicitations - vous avez bien repondu !</span>";
@@ -535,8 +513,7 @@
             <button id="startBtn" onclick="reset()">Start</button>
           <div>`
         quizQuestionSetup();
-        quiz.innerHTML += `<div id="questions" class="hidden">
-          ${quizQuestionSetup()}</div>`
+        quiz.innerHTML += `<div id="questions" class="hidden">${quizQuestionSetup()}</div>`;
 
         quiz.innerHTML += ` <div id="end" class="hidden">
           <div class="circle"><span>Well done!</span></div>
@@ -562,6 +539,16 @@
                 }
             }
 
+        });
+
+        document.querySelectorAll('.optBtn').forEach(button => {
+            button.addEventListener('click', function () {
+                const opt = this.getAttribute('data-opt');
+                const q = this.getAttribute('data-q');
+                check(opt, q);
+                const action = this.getAttribute('data-action');
+                document.querySelector('#questions').classList.add(action);
+            });
         });
     }
     function animEnd(e) {
@@ -601,6 +588,8 @@
         </div>`;
 
         }
+
+       
         return questionHtml;
     }
 
@@ -675,21 +664,43 @@
 
     const allQs = [];
     const allAs = [];
-    (function () {
-        for (const answer in data.answers) {
-            allAs.push(answer);
-            for (const qs of data.answers[answer]) {
-                allQs.push([qs, answer])
-            }
-        }
-        setupQuiz();
+    
+    var quizId = sessionStorage.getItem('quizId') ? parseInt(sessionStorage.getItem('quizId'), 10) : 1;
+    var level = 1;
+    var data;
 
-        quiz.addEventListener('mousedown', handleStart);
-        quiz.addEventListener('mouseup', handleMouseEnd);
-        quiz.addEventListener('mousemove', handleMouseMove);
-        quiz.addEventListener('touchstart', handleStart);
-        quiz.addEventListener('touchend', handleTouchEnd);
-        quiz.addEventListener('touchcancel', handleTouchCancel);
-        quiz.addEventListener('touchmove', handleTouchMove);
-    })();
+    $.ajax({
+        url: '/Quiz/GetQuestions',
+        type: 'GET',
+        data: { quizId: quizId, level: level },
+        success: function (answ) {
+            data = answ;
+            const allAs = [];
+            const allQs = [];
+
+            for (const answer in data.answers) {
+                allAs.push(answer);
+                for (const qs of data.answers[answer]) {
+                    allQs.push([qs, answer]);
+                }
+            }
+
+            setupQuiz(); 
+
+            // Add event listeners
+            const quiz = document.getElementById('quiz'); 
+            quiz.addEventListener('mousedown', handleStart);
+            quiz.addEventListener('mouseup', handleMouseEnd);
+            quiz.addEventListener('mousemove', handleMouseMove);
+            quiz.addEventListener('touchstart', handleStart);
+            quiz.addEventListener('touchend', handleTouchEnd);
+            quiz.addEventListener('touchcancel', handleTouchCancel);
+            quiz.addEventListener('touchmove', handleTouchMove);
+        },
+        error: function (xhr, status, error) {
+            // Handle any errors that occur during the request
+            console.error("Error: " + status + " " + error);
+        }
+    });
+
 </script>

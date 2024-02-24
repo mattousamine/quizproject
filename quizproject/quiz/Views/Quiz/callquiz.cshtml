@@ -1,0 +1,48 @@
+﻿@{
+    ViewData["Title"] = "Simple Quiz test Json";
+}
+<div>
+    <!-- Input for Quiz ID -->
+    <input type="number" id="quizIdInput" placeholder="Enter Quiz ID" />
+
+    <!-- Button to trigger AJAX call -->
+    <button id="fetchQuestions">Fetch Questions</button>
+
+    <!-- Modal Structure (hidden initially) -->
+    <div id="questionsModal" style="display:none;">
+        <div id="modalContent"></div>
+        <button id="closeModal">Close</button>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+</div>
+<script>
+    $(document).ready(function () {
+        $('#fetchQuestions').click(function () {
+            var quizId = $('#quizIdInput').val(); // Get the Quiz ID from the input
+            var level = 1; // Assuming level 1 as per your action requirement
+
+            $.ajax({
+                url: '/Quiz/GetQuestions', // Update with your controller's name
+                type: 'GET',
+                data: { quizId: quizId, level: level },
+                success: function (data) {
+                    // Show the JSON data in the modal
+                    $('#modalContent').html('<pre>' + JSON.stringify(data, null, 4) + '</pre>');
+                    $('#questionsModal').show(); // Show the modal
+                },
+                error: function (request, status, error) {
+                    // Handle errors
+                    $('#modalContent').html('<p>Error fetching questions. Please try again.</p>');
+                    $('#questionsModal').show(); // Show the modal
+                }
+            });
+        });
+
+        // Close the modal
+        $('#closeModal').click(function () {
+            $('#questionsModal').hide();
+        });
+    });
+</script>

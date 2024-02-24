@@ -1,0 +1,78 @@
+@model quiz.Models.Question
+
+@{
+    ViewData["Title"] = "Edit";
+}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Dashboard</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active"><a asp-controller="Admin" asp-action="AdminPanel" style="color: inherit; text-decoration: none;">Admin Panel</a></li>
+        <li class="breadcrumb-item active">Question</li>
+    </ol>
+    <h1>Edit</h1>
+
+    <h4>Question</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="QuestionId" />
+                <div class="form-group">
+                    <label asp-for="QuestionText" class="control-label"></label>
+                    <input asp-for="QuestionText" class="form-control" />
+                    <span asp-validation-for="QuestionText" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="QuestionFeedback" class="control-label"></label>
+                    <input asp-for="QuestionFeedback" class="form-control" />
+                    <span asp-validation-for="QuestionFeedback" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="QuestionLevel" class="control-label"></label>
+                    <input asp-for="QuestionLevel" class="form-control" />
+                    <span asp-validation-for="QuestionLevel" class="text-danger"></span>
+                </div>
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="QuestionIsActive" /> @Html.DisplayNameFor(model => model.QuestionIsActive)
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="selectedQuizzes">Associated Quizzes</label>
+                    <select id="selectedQuizzes" name="selectedQuizzes[]" class="form-control" multiple>
+                        @{
+                            var allQuizzes = ViewBag.AllQuizzes as SelectList;
+                            var selectedQuizzes = ViewBag.SelectedQuizzes as List<int>;
+
+                            foreach (var quiz in allQuizzes)
+                            {
+                                bool isSelected = selectedQuizzes.Contains(int.Parse(quiz.Value));
+                                string optionTag = $"<option value=\"{quiz.Value}\"" + (isSelected ? " selected" : "") + $">{quiz.Text}</option>";
+
+                                @Html.Raw(optionTag)
+                            }
+                        }
+                    </select>
+
+
+
+
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <a asp-action="Index">Back to List</a>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

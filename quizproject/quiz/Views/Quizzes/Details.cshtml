@@ -1,0 +1,42 @@
+@model quiz.Models.Quiz
+
+@{
+    ViewData["Title"] = "Details";
+}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Dashboard</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active"><a asp-controller="Admin" asp-action="AdminPanel" style="color: inherit; text-decoration: none;">Admin Panel</a></li>
+        <li class="breadcrumb-item active">Quiz</li>
+    </ol>
+    <h1>Details</h1>
+
+    <div>
+        <h4>Quiz</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.QuizName)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.QuizName)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.QuizIsActive)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.QuizIsActive)
+            </dd>
+            <dt class="col-sm-2">
+                Category
+            </dt>
+            <dd class="col-sm-10">
+                @ViewBag.CategoryName
+            </dd>
+        </dl>
+    </div>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model?.QuizId">Edit</a> |
+        <a asp-action="Index">Back to List</a>
+    </div>
+</div>

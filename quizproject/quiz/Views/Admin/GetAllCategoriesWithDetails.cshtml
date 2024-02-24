@@ -1,0 +1,96 @@
+﻿@model dynamic
+
+@{
+    ViewData["Title"] = "Categories Detail View";
+}
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+
+
+<div class="container mt-4">
+    @if (Model != null && Model.Count > 0)
+    {
+        @foreach (var category in Model)
+        {
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-layer-group me-1"></i>
+                    @category.CategoryName
+                </div>
+                <div class="card-body">
+                    <table id="datatablesSimple-@category.CategoryId" class="table">
+                        <thead>
+                            <tr>
+                                <th>Quiz Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var quiz in category.Quizzes)
+                            {
+                                <tr>
+                                    <td>@quiz.QuizName</td>
+                                    <td>
+                                        <button class="btn btn-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#quiz-@quiz.QuizId" aria-expanded="false" aria-controls="collapseExample">
+                                            View Questions
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="collapse" id="quiz-@quiz.QuizId">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Question</th>
+                                                        <th>Options</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var question in quiz.Questions)
+                                                    {
+                                                        <tr>
+                                                            <td>@question.QuestionText</td>
+                                                            <td>
+                                                                @foreach (var option in question.Options)
+                                                                {
+                                                                    <div>@option.OptionText (@(option.OptionIsCorrect ? "Correct" : "Incorrect"))</div>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <script>
+                $(document).ready(function () {
+                    $('#datatablesSimple-@category.CategoryId').DataTable();
+                });
+            </script>
+        }
+
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            No data found.
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.table').DataTable();
+        });
+    </script>
+}

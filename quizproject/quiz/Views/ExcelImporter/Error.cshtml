@@ -1,0 +1,10 @@
+﻿@{
+    ViewBag.Title = "Excell import Error";
+}
+
+<h2>Error</h2>
+
+@if (!string.IsNullOrEmpty(ViewBag.Error))
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}

@@ -1,0 +1,91 @@
+﻿@{
+    ViewData["Title"] = "User Home";
+}
+
+<style>
+    .quiz-card {
+        overflow: hidden;
+        position: relative;
+        cursor: pointer; /* Change cursor to indicate clickable */
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+        .quiz-card::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.1), transparent);
+            transform-origin: center top;
+            transform: scaleY(-1);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0; /* Initially hidden */
+        }
+
+        .quiz-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+
+            .quiz-card:hover::before {
+                opacity: 1; /* Show reflection on hover */
+                transform: scaleY(-1) translateY(5px);
+            }
+
+        .quiz-card img {
+            transition: transform 0.3s ease;
+            display: block;
+            width: 100%;
+        }
+
+        .quiz-card:hover img {
+            transform: scale(1.05);
+        }
+
+    .card-body {
+        padding: 15px; /* Adjust as needed */
+    }
+
+    .card-title {
+        margin-bottom: 0; /* Adjust title spacing */
+    }
+</style>
+
+<div class="container">
+    <h2 class="mt-4 mb-3"><strong>All Categories <span class="badge badge-secondary" style="color:black">(@ViewBag.CategoriesWithQuizzes.Count)</span></strong></h2>
+    @if (ViewBag.CategoriesWithQuizzes.Count > 0)
+    {
+        foreach (var category in ViewBag.CategoriesWithQuizzes)
+        {
+            <h3 class="mt-4">@category.CategoryName</h3>
+            <div class="row">
+                @foreach (var quiz in category.Quizzes)
+                {
+                    <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
+                        <div class="card quiz-card h-100">
+                            <a href="#" style="text-decoration: none; color: inherit;">
+                                <!-- Update href with actual link -->
+                                <img src="@quiz.QuizImg" class="card-img-top" alt="Quiz Image" onerror="this.onerror=null;this.src='URL_TO_DEFAULT_IMAGE';">
+                                <div class="card-body">
+                                    <h5 class="card-title">@quiz.QuizName</h5>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center">
+            <h1 class="display-4">Welcome to the Quiz Project</h1>
+            <p>No categories or quizzes available at the moment.</p>
+        </div>
+    }
+</div>
+
+

@@ -47,8 +47,11 @@
                     @if (isAdmin)
                     {
                             <li><a class="dropdown-item" asp-controller="Admin" asp-action="AdminPanel">Admin Panel</a></li>
+                            <li><a class="dropdown-item" asp-controller="Quiz" asp-action="ShowAdminScore">Score stats</a></li>
+                    }else{
+                            <li><a class="dropdown-item" asp-controller="Quiz" asp-action="ShowUserScore">My score</a></li>
                     }
-                    <li><a class="dropdown-item" href="#!">Modify Profile</a></li>
+                        
                     <li><hr class="dropdown-divider" /></li>
                     <li><a class="dropdown-item" asp-controller="Authentication" asp-action="Logout">Logout</a></li>
 

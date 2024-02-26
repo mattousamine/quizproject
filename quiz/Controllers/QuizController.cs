@@ -121,7 +121,15 @@ namespace quiz.Controllers
         }
 
 
-
+        public ActionResult ShowUserScore()
+        {
+            return View("~/Views/Score/UserScore.cshtml");
+        }
+        public ActionResult ShowAdminScore()
+        {
+            return View("~/Views/Score/AdminScore.cshtml");
+        }
+        
         public IActionResult Index()
         {
             return View();

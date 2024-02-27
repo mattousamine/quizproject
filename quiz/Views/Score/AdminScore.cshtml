@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "Admin Score Stats";
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table me-1"></i>
+        DataTable Example
+    </div>
+    <div class="card-body">
+        <table id="datatablesSimple">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Quiz</th>
+                    <th>Date</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                <tr>
+                    <td>User1</td>
+                    <td>Driver Licence</td>
+                    <td>2023-01-08</td>
+                    <td>1126</td>
+                </tr>
+                <tr>
+                    <td>User2</td>
+                    <td>Life</td>
+                    <td>2023-01-15</td>
+                    <td>1940</td>
+                </tr>
+                <tr>
+                    <td>User3</td>
+                    <td>C#</td>
+                    <td>2023-01-22</td>
+                    <td>1322</td>
+                </tr>
+                <tr>
+                    <td>User4</td>
+                    <td>C++</td>
+                    <td>2023-01-29</td>
+                    <td>123</td>
+                </tr>
+                <tr>
+                    <td>User5</td>
+                    <td>C++</td>
+                    <td>2023-01-29</td>
+                    <td>1530</td>
+                </tr>
+                <tr>
+                    <td>User6</td>
+                    <td>C++</td>
+                    <td>2023-01-29</td>
+                    <td>250</td>
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+@section Scripts {
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#datatablesSimple').DataTable();
+        });
+
+    </script>
+
+}

@@ -1,45 +1,3 @@
-const quizData = {
-    easy: [
-        {
-            questionNum: "Question 1",
-            questionText: "La POO(Programmation Orientee  Objet) est: ",
-            options: ["Un paradigme de programmation",
-                "Un langage de programmation"],
-            correctAnswer: "Un paradigme de programmation",
-            answeredCorrectly: false
-        },
-        {
-            questionNum: "Question 2",
-            questionText: "La generalisation est permet a des sous-classe de derriver et ainsi de finir des sous-classes plus specifiques.",
-            options: ["VRAI",
-                "FAUX"],
-            correctAnswer: "VRAI",
-            answeredCorrectly: false
-        },
-    ],
-    hard: [
-        {
-            questionNum: "Question 1",
-            questionText: "Lequel de ces quatres n'est pas un principes de la Programmation Orrientee Objet?",
-            options: ["Abstration",
-                "Polymorphisme",
-                "principe de service",
-                "Encapsulation"],
-            correctAnswer: "principe de service",
-            answeredCorrectly: false
-        },
-        {
-            questionNum: "Question 2",
-            questionText: "lequel de ces quatre n'est pas un specifateur d'acces en programmation",
-            options: ["Protected",
-                "Public",
-                "Private",
-                "Unaccessible"],
-            correctAnswer: "Unaccessible",
-            answeredCorrectly: false
-        },
-    ]
-};
 
 let currentQuestion = 0;
 let currentLevel = 'easy';
@@ -192,5 +150,27 @@ function changeLevel() {
         showQuestion();
     }
 }
+let quizData = {}; // Initialize quizData as an empty object
 
-showQuestion();
+$(document).ready(function () {
+    fetchQuizDataAndShowQuestion();
+});
+
+function fetchQuizDataAndShowQuestion() {
+    const quizId = sessionStorage.getItem('quizId') ? parseInt(sessionStorage.getItem('quizId'), 10) : 1;
+    const level = 2; 
+
+    $.ajax({
+        url: '/Quiz/GetQuestions',
+        type: 'GET',
+        data: { quizId: quizId, level: level },
+        dataType: 'json',
+        success: function (response) {
+            quizData = response; // Load the fetched data into quizData
+            showQuestion(); // Call showQuestion to display the first question
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching quiz data:', status, error);
+        }
+    });
+}

@@ -104,6 +104,8 @@ namespace quiz.Controllers
             return View("~/Views/ExcelImporter/PreviewImport.cshtml", excelData);
         }
 
+        
+
         private bool IsRowValid(QuizImport quizImport, out List<string> errorMessages)
         {
             errorMessages = new List<string>();

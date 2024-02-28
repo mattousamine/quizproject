@@ -57,6 +57,21 @@
         display: none;
     }
 
+    .questions-left-indicator {
+        position: fixed; /* Keeps it at the top regardless of scrolling */
+        top: 0;
+        left: 55%;
+        transform: translateX(-50%);
+        z-index: 1050; /* Make sure it's above other elements */
+        background-color: #3498db; /* Choose a color that fits your theme */
+        color: white;
+        padding: 10px 20px;
+        border-radius: 0 0 10px 10px; /* Rounded bottom corners for a polished look */
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Subtle shadow for depth */
+        font-size: 1em;
+        display: none; /* Initially hidden, show it when the quiz starts */
+    }
+
     .optBtn {
         color: black;
         font-size: 1.5em;
@@ -79,7 +94,7 @@
 
     html {
         font-family: Garamond, serif;
-        font-size: 1.2em;
+        font-size: 16px;
         margin: 0;
         padding: 0;
         *
@@ -97,11 +112,12 @@
     body {
         margin: 0;
         padding: 0;
+        font-family: 'Open Sans', Arial, sans-serif;
         #quiz
 
     {
-        background: rgb(237, 255, 116);
-        background: linear-gradient(90deg, rgb(4, 198, 56) 50%, rgb(40, 54, 251) 50%);
+        background: rgb(0, 123, 255); /* Fallback for browsers that do not support gradients */
+        background: linear-gradient(90deg, rgba(0, 123, 255, 1) 50%, rgba(204, 229, 255, 1) 50%);
         overflow: hidden;
         width: 80%;
         height: 90%;
@@ -112,6 +128,8 @@
         min-height: 300px;
         padding: 1em;
         box-sizing: border-box;
+        border-radius: 10px; /* Optional: for rounded corners */
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2); /* Optional: for a subtle shadow */
         #feedback
 
     {
@@ -123,7 +141,7 @@
         &>span
 
     {
-        background: black;
+        background: white;
         color: white;
         font-weight: bold;
         filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, 0.2));
@@ -173,11 +191,12 @@
 
     .circle,
     fieldset legend {
+        font-size: 1.5rem;
         position: absolute;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        font-size: 1.7em;
+
         font-weight: bold;
         text-align: center;
         background: white;
@@ -436,11 +455,16 @@
     }
     }
     }
+
     }
     }
     }
+
+
 </style>
 
+
+<div id="questionsLeftIndicator" class="questions-left-indicator"></div>
 
 <div id="quiz">
 </div>
@@ -455,6 +479,7 @@
         total: 0
     }
     function reset() {
+        currentQuestionIndex = 0;
         document.querySelector("#start").classList.add("hidden");
         document.querySelector("#end").classList.add("hidden");
         document.querySelector("#questions").innerHTML = quizQuestionSetup();
@@ -477,9 +502,9 @@
         const correctorno = answers.includes(q);
 
         if (correctorno) {
-            document.querySelector("#feedback").innerHTML = "<span>Felicitations - vous avez bien repondu !</span>";
+            document.querySelector("#feedback").innerHTML = "<span style='color:green;'>Felicitations - vous avez bien repondu !</span>";
         } else {
-            document.querySelector("#feedback").innerHTML = "<span>Oh non - cela etait incorrect</span>";
+            document.querySelector("#feedback").innerHTML = "<span style='color:red;'>Oh non - cela etait incorrect</span>";
         }
 
         document.querySelector("#feedback").classList.add("anim");
@@ -487,6 +512,8 @@
     }
 
     function nextslide() {
+        currentQuestionIndex++;
+       
         num = Number(document.querySelector("#questions .slide:not(.hidden)").id.split("slide")[1]);
         const slides = document.querySelectorAll("#questions .slide")
         for (const slide of slides) {
@@ -499,12 +526,27 @@
         } else {
             quizCompleted();
         }
+        
+        var scorePercentage = Math.round((score.correct / score.total) * 100);
+        document.querySelector("#end .circle span").textContent = `Score: ${scorePercentage}/100`;
+        updateQuestionsLeftIndicator();
+        document.querySelector("#end .detail").innerHTML = `You answered ${score.correct} out of ${score.total} questions correctly`;
+        
+    }
+    function updateQuestionsLeftIndicator() {
+        var questionsLeft = data.questions.length - currentQuestionIndex;
+        if (currentQuestionIndex > data.questions.length - 1) { currentQuestionIndex = data.questions.length - 1 }
+        document.querySelector("#questionsLeftIndicator").innerHTML = `Question ${currentQuestionIndex + 1}/${data.questions.length} - ${questionsLeft} question(s) left`;
+        document.querySelector("#questionsLeftIndicator").style.display = 'block'; // Show the indicator
     }
 
+
     function quizCompleted() {
-        document.querySelector("#questions").classList.add("hidden")
-        document.querySelector("#end").classList.remove("hidden")
-        document.querySelector("#end .detail").innerHTML = `You answered ${score.correct} out of ${score.total} questions correctly`
+        
+        document.querySelector("#questions").classList.add("hidden");
+        document.querySelector("#end").classList.remove("hidden");
+        document.querySelector("#end .detail").innerHTML = `You answered ${score.correct} out of ${score.total} questions correctly`;
+        
     }
     function setupQuiz() {
         quiz.innerHTML += `<div id="start">
@@ -519,8 +561,8 @@
           <div class="circle"><span>Well done!</span></div>
           <div class="detail"></div>
             <button id="retryBtn" onclick="reset()">Retry</button>
-          <div>`
-        quiz.innerHTML += `<div id="feedback" aria-live="polite"><div>`
+          <div>`;
+        quiz.innerHTML += `<div id="feedback" aria-live="polite"><div>`;
         document.querySelector("#feedback").addEventListener("animationend", function (e) {
             animEnd(e)
         }, false);
@@ -575,6 +617,8 @@
         score.incorrect = 0;
         score.total = 0;
         const sortedQs = shuffle(data.questions);
+       
+        
         questionHtml = "";
         for (const q in sortedQs) {
             const question = sortedQs[q];
@@ -668,7 +712,7 @@
     var quizId = sessionStorage.getItem('quizId') ? parseInt(sessionStorage.getItem('quizId'), 10) : 1;
     var level = 1;
     var data;
-
+    var currentQuestionIndex = 0;
     $.ajax({
         url: '/Quiz/GetQuestions',
         type: 'GET',

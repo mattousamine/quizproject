@@ -149,6 +149,8 @@ body {
             justify-content: center;
             font-weight: 700;
             color: #fff;
+            cursor: pointer;
+            pointer-events: none;
         }
 
 .question-context {
@@ -184,6 +186,113 @@ body {
     background: #3586ff;
     /* Bleu pour la question active */
 }
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    -webkit-animation-name: fadeIn; /* Fade in the background */
+    -webkit-animation-duration: 0.4s;
+    animation-name: fadeIn;
+    animation-duration: 0.4s
+}
+
+.modal-content {
+    position: fixed; /* Stay in place */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center the modal */
+    background-color: #fefefe;
+    padding: 20px;
+    border-radius: 10px; /* Rounded corners */
+    width: 40%; /* Adjust as necessary for size */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.19); /* Add some shadow for depth */
+    animation-name: zoomIn;
+    animation-duration: 0.4s;
+}
+@keyframes zoomIn {
+    from {
+        transform: translate(-50%, -50%) scale(0)
+    }
+
+    to {
+        transform: translate(-50%, -50%) scale(1)
+    }
+}
+/* Add Animation */
+@-webkit-keyframes slideIn {
+    from {
+        bottom: -300px;
+        opacity: 0
+    }
+
+    to {
+        bottom: 0;
+        opacity: 1
+    }
+}
+
+@keyframes slideIn {
+    from {
+        bottom: -300px;
+        opacity: 0
+    }
+
+    to {
+        bottom: 0;
+        opacity: 1
+    }
+}
+
+@-webkit-keyframes fadeIn {
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
+    }
+}
+
+.close-button {
+    color: white;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+    .close-button:hover,
+    .close-button:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+/* Style the gauge container specifically for a gaming theme */
+#gaugeContainer {
+    background-color: white; /* Change to white */
+    border: 2px solid #add8e6; /* Light blue border */
+    box-shadow: 0 0 10px #0000ff; /* Blue glow for the shadow */
+    border-radius: 50%;
+}
+
+
 @media screen and (min-width: 768px) {
     .container {
         grid-template-columns: 2fr 1fr; /* Adjust the number of columns for larger screens */
@@ -193,3 +302,12 @@ body {
             "explanation-section questions-nav-section";
     }
 }
+#prev-btn {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+    #prev-btn i,
+    #prev-btn span {
+        color: black !important;
+    }

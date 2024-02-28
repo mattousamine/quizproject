@@ -1,4 +1,4 @@
-﻿@{
+﻿﻿@{
     ViewData["Title"] = "Multiple Quiz";
 }
 
@@ -13,11 +13,11 @@
 <div class="container">
     <h1 class="quiz-title">Programmation C++</h1>
 
-   <!-- <label for="level-selector">Choisir le niveau:</label>
-    <select id="level-selector" onchange="changeLevel()">
-        <option value="easy">Moyen</option>
-        <option value="hard">Difficile</option>
-     </select> -->
+    <!-- <label for="level-selector">Choisir le niveau:</label>
+     <select id="level-selector" onchange="changeLevel()">
+         <option value="easy">Moyen</option>
+         <option value="hard">Difficile</option>
+      </select> -->
 
     <section class="question-section">
         <div class="question">
@@ -26,7 +26,10 @@
         </div>
         <div class="answer-item" id="options-container"></div>
         <div class="action">
-            <button class="btn" id="prev-btn" onclick="prevQuestion()">Prev</button>
+            <a class="btn btn-primary" id="prev-btn"  asp-controller="Home" asp-action="Index" aria-label="Go to More Quizzes">
+                <span style="color:black"> <i class="fas fa-arrow-left"></i> More Quizzes </span>
+            </a>
+
             <button class="btn" id="next-btn" onclick="nextQuestion()">Next</button>
         </div>
     </section>
@@ -43,6 +46,16 @@
         </div>
     </section>
 
+    <!-- Modal for displaying the score gauge -->
+    <div id="scoreModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h2>Your Score is: <span id="scoreValue">0</span> out of 100</h2>
+            <!-- Container for the D3 gauge -->
+            <div id="gaugeContainer" style="width: 200px; height: 200px; margin: auto;"></div>
+        </div>
+    </div>
+
 </div>
 
 
@@ -50,7 +63,5 @@
 @section Scripts {
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="~/js/quizMultiple.js" asp-append-version="true"></script>
-    
-
+    <script src="https://d3js.org/d3.v6.min.js"></script>
 }
-

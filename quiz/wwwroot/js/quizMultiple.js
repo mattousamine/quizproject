@@ -25,7 +25,7 @@ function showQuestion() {
     optionsContainer.innerHTML = '';
 
     const shuffledOptions = shuffleArray(currentQuizData.options);
-
+    nextButton.disabled = true;
     for (const option of currentQuizData.options) {
         const optionDiv = document.createElement('div');
         optionDiv.className = 'answer-item';
@@ -44,14 +44,11 @@ function showQuestion() {
         optionsContainer.appendChild(optionDiv);
     }
 
-    if (currentQuestion === 0) {
-        prevButton.disabled = true;
-    } else {
-        prevButton.disabled = false;
-    }
+   
 
     if (currentQuestion === quizData[currentLevel].length - 1) {
         nextButton.innerText = 'Terminer';
+        
     } else {
         nextButton.innerText = 'Suivant';
     }
@@ -124,26 +121,121 @@ function checkAnswer(selectedOption) {
     } else {
         console.log('Mauvaise reponse!');
     }
+    nextButton.disabled = false;
 }
 
 function nextQuestion() {
-    currentQuestion++;
-    if (currentQuestion >= quizData[currentLevel].length) {
-
-        currentQuestion = 0;
+    if (currentQuestion < quizData[currentLevel].length - 1) {
+        currentQuestion++;
+        showQuestion();
+    } else {
+        calculateAndDisplayScore(); 
     }
-    showQuestion();
 }
 
+
 function prevQuestion() {
+    /*
     currentQuestion--;
     if (currentQuestion < 0) {
 
         currentQuestion = quizData[currentLevel].length - 1;
     }
-    showQuestion();
+    showQuestion();*/
+   
+
+}
+window.onclick = function (event) {
+    var modal = document.getElementById('scoreModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+function drawGauge(scoreValue) {
+    // Remove any existing svg to ensure the gauge is redrawn correctly
+    d3.select("#gaugeContainer").selectAll("svg").remove();
+
+    var tau = 2 * Math.PI;
+    var width = 200, height = 200, radius = Math.min(width, height) / 2;
+    var arc = d3.arc()
+        .innerRadius(radius - 20)
+        .outerRadius(radius)
+        .startAngle(0);
+
+    var svg = d3.select("#gaugeContainer").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+    var background = svg.append("path")
+        .datum({ endAngle: tau })
+        .style("fill", "#add8e6")
+        .attr("d", arc);
+
+    var score = scoreValue / 100; // Convert scoreValue to a fraction of 100
+
+    // Create the foreground arc but don't set the end angle yet
+    var foreground = svg.append("path")
+        .datum({ endAngle: score * tau })
+        .style("fill", "#0000ff") // Blue color for the score arc
+        .attr("d", arc);
+
+    // Animate the foreground arc
+    foreground.transition()
+        .duration(1500) // animation duration in milliseconds
+        .attrTween("d", function (d) {
+            var interpolate = d3.interpolate(d.endAngle, score * tau);
+            return function (t) {
+                d.endAngle = interpolate(t);
+                return arc(d);
+            };
+        });
+
+    // Optional: Add text to display the score
+    // You might want to animate this as well
+    var scoreText = svg.append("text")
+        .attr("text-anchor", "middle")
+        .attr("dy", "0.35em")
+        .attr("class", "scoreText")
+        .text("0"); // Start text at 0
+
+    // Animate score text update
+    var scoreInterpolate = d3.interpolateRound(0, scoreValue);
+    d3.transition().duration(1500).tween("text", function () {
+        return function (t) {
+            scoreText.text(scoreInterpolate(t));
+        };
+    });
 }
 
+
+function showModal() {
+    document.getElementById('scoreModal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('scoreModal').style.display = 'none';
+}
+
+// Adjust calculateAndDisplayScore to use drawGauge
+function calculateAndDisplayScore() {
+    let score = 0;
+    let totalQuestions = quizData[currentLevel].length;
+
+    for (let question of quizData[currentLevel]) {
+        if (question.answeredCorrectly) {
+            score++;
+        }
+    }
+
+    let scorePercentage = (score / totalQuestions) * 100;
+    let scoreValue = Math.round(scorePercentage);
+
+    document.getElementById('scoreValue').innerText = scoreValue;
+    drawGauge(scoreValue); // Draw the gauge with the score value
+    showModal();
+}
 function changeLevel() {
     if (currentQuestion === 0) {
         currentLevel = levelSelector.value;
@@ -154,7 +246,10 @@ let quizData = {}; // Initialize quizData as an empty object
 
 $(document).ready(function () {
     fetchQuizDataAndShowQuestion();
+    
 });
+
+
 
 function fetchQuizDataAndShowQuestion() {
     const quizId = sessionStorage.getItem('quizId') ? parseInt(sessionStorage.getItem('quizId'), 10) : 1;
@@ -168,6 +263,11 @@ function fetchQuizDataAndShowQuestion() {
         success: function (response) {
             quizData = response; // Load the fetched data into quizData
             showQuestion(); // Call showQuestion to display the first question
+            $('#questionNumbersList').off('click', 'a').on('click', 'a', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                console.log('Click on link prevented.');
+            });
         },
         error: function (xhr, status, error) {
             console.error('Error fetching quiz data:', status, error);

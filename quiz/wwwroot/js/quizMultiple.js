@@ -235,6 +235,27 @@ function calculateAndDisplayScore() {
     document.getElementById('scoreValue').innerText = scoreValue;
     drawGauge(scoreValue); // Draw the gauge with the score value
     showModal();
+
+    let quizId = sessionStorage.getItem('quizId') ? parseInt(sessionStorage.getItem('quizId'), 10) : 1;
+
+    // Call the SaveQuizSession action via AJAX
+    saveQuizSession(quizId, scoreValue);
+}
+function saveQuizSession(quizId, scorePercentage) {
+    $.ajax({
+        url: '/Quiz/SaveQuizSession', 
+        type: 'GET',
+        data: {
+            quizId: quizId,
+            score: scorePercentage
+        },
+        success: function (response) {
+            console.log('Session saved successfully:', response);
+        },
+        error: function (xhr, status, error) {
+            console.error('Error saving session:', error);
+        }
+    });
 }
 function changeLevel() {
     if (currentQuestion === 0) {

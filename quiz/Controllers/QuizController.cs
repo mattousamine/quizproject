@@ -147,5 +147,51 @@ namespace quiz.Controllers
         {
             return View();
         }
+        public async Task<IActionResult> SaveQuizSession(int quizId, int score)
+        {
+            // Fetch the userId from session or another state management mechanism
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            // Creating a new QuizSession instance with the current time
+            var quizSession = new QuizSession
+            {
+                QuizSessionScore = score,
+                QuizSessionTime = DateTime.Now, // Use the current time when saving the session
+            };
+
+            _context.QuizSessions.Add(quizSession);
+            await _context.SaveChangesAsync();
+
+            // Check if a QuizTracker with the same userId and quizId already exists
+            var existingTracker = await _context.QuizTrackers
+                .FirstOrDefaultAsync(qt => qt.UserQuizId == userId.Value && qt.QuizId == quizId);
+
+            if (existingTracker != null)
+            {
+                // If found, update the existing tracker entry
+                existingTracker.QuizSessionId = quizSession.QuizSessionId;
+            }
+            else
+            {
+                // If not found, create a new QuizTracker entry
+                var quizTracker = new QuizTracker
+                {
+                    UserQuizId = userId.Value,
+                    QuizSessionId = quizSession.QuizSessionId,
+                    QuizId = quizId
+                };
+
+                _context.QuizTrackers.Add(quizTracker);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(); 
+        }
+
     }
 }

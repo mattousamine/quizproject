@@ -538,6 +538,29 @@
         if (currentQuestionIndex > data.questions.length - 1) { currentQuestionIndex = data.questions.length - 1 }
         document.querySelector("#questionsLeftIndicator").innerHTML = `Question ${currentQuestionIndex + 1}/${data.questions.length} - ${questionsLeft} question(s) left`;
         document.querySelector("#questionsLeftIndicator").style.display = 'block'; // Show the indicator
+        if (questionsLeft === 0) {
+            var quizId = sessionStorage.getItem('quizId') ? parseInt(sessionStorage.getItem('quizId'), 10) : 1;
+            var scorePercentage = Math.round((score.correct / score.total) * 100); 
+            saveQuizSession(quizId, scorePercentage);  
+        }
+    }
+    function saveQuizSession(quizId, scorePercentage) {
+        $.ajax({
+            url: '/Quiz/SaveQuizSession', // Ensure this URL matches your routing setup
+            type: 'GET',
+            data: {
+                quizId: quizId,
+                score: scorePercentage
+            },
+            success: function (response) {
+                console.log('Session saved successfully:', response);
+                // Handle further actions upon success, e.g., showing a message or redirecting
+            },
+            error: function (xhr, status, error) {
+                console.error('Error saving session:', error);
+                // Handle errors, e.g., by showing an error message to the user
+            }
+        });
     }
 
 

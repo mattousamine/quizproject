@@ -66,6 +66,7 @@ namespace quiz.Controllers
                 // Set session variable
                 HttpContext.Session.SetString("UserEmail", user.UserQuizEmail);
                 HttpContext.Session.SetString("UserRole", user.UserQuizIsAdmin ? "Admin" : "User");
+                HttpContext.Session.SetInt32("UserId", user.UserQuizId);
 
                 TempData["SuccessMessage"] = "Login successful!";
                

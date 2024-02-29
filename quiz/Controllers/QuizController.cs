@@ -193,5 +193,65 @@ namespace quiz.Controllers
             return Ok(); 
         }
 
+        public async Task<IActionResult> GetAdminScoreStats()
+        {
+            var quizTrackers = _context.QuizTrackers.ToList();
+            var userQuizzes = _context.UserQuizzes.ToList();
+            var quizzes = _context.Quizzes.ToList();
+            var quizSessions = _context.QuizSessions.ToList();
+
+            var stats = (from qt in quizTrackers
+                         join uq in userQuizzes on qt.UserQuizId equals uq.UserQuizId
+                         join q in quizzes on qt.QuizId equals q.QuizId
+                         join qs in quizSessions on qt.QuizSessionId equals qs.QuizSessionId
+                         select new
+                         {
+                             User = uq.UserQuizUsername,
+                             Quiz = q.QuizName,
+                             Date = qs.QuizSessionTime.ToString("o"),
+                             Score = qs.QuizSessionScore
+                         }).ToList();
+
+            return Json(stats);
+        }
+
+        public async Task<IActionResult> GetUserQuizScores()
+        {
+            try
+            {
+                int currentUserId = GetCurrentUserId();
+                if (currentUserId == 0)
+                {
+                    return Unauthorized();
+                }
+
+                var quizScores = await (from qt in _context.QuizTrackers
+                                        where qt.UserQuizId == currentUserId
+                                        join q in _context.Quizzes on qt.QuizId equals q.QuizId
+                                        join qs in _context.QuizSessions on qt.QuizSessionId equals qs.QuizSessionId
+                                        select new
+                                        {
+                                            QuizName = q.QuizName,
+                                            Score = qs.QuizSessionScore // Assuming the score is already scaled to a max of 100
+                                        }).ToListAsync();
+
+                return Json(quizScores);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception message or handle it as required
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+
+        private int GetCurrentUserId()
+        {
+            // Retrieve the user ID from the current session or context
+            // This is a placeholder, implement this according to your authentication mechanism
+            return HttpContext.Session.GetInt32("UserId") ?? 0;
+        }
+
+
     }
 }

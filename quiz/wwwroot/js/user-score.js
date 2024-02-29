@@ -1,46 +1,60 @@
-// Set new default font family and font color to mimic Bootstrap's default styling
-Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-Chart.defaults.global.defaultFontColor = '#292b2c';
+document.addEventListener('DOMContentLoaded', function () {
+    fetch('/Quiz/GetUserQuizScores')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
 
-// Bar Chart Example
-var ctx = document.getElementById("myBarChart");
-var myLineChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: ["POO", "NB DRIVER LICENCE", "C++", "FRENCH LANGUAGE", "Java", "C#"],
-        datasets: [{
-            label: "Score",
-            backgroundColor: "rgba(2,117,216,1)",
-            borderColor: "rgba(2,117,216,1)",
-            data: [4215, 5312, 6251, 7841, 9821, 14984],
-        }],
-    },
-    options: {
-        scales: {
-            xAxes: [{
-                time: {
-                    unit: 'month'
+
+            // Parse the data to populate the chart
+            var quizNames = data.map(q => q.quizName); // Ensure the property names are in lowercase
+            var quizScores = data.map(q => q.score);   // Ensure the property names are in lowercase
+
+
+
+            var ctx = document.getElementById("myBarChart");
+            var myBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: quizNames,
+                    datasets: [{
+                        label: "Score",
+                        backgroundColor: "rgba(2,117,216,1)",
+                        borderColor: "rgba(2,117,216,1)",
+                        data: quizScores,
+                    }],
                 },
-                gridLines: {
-                    display: false
-                },
-                ticks: {
-                    maxTicksLimit: 6
+                options: {
+                    scales: {
+                        xAxes: [{
+                            gridLines: {
+                                display: false
+                            },
+                            ticks: {
+                                maxTicksLimit: 6
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                min: 0,
+                                max: 100, // Assuming scores are out of 100
+                                maxTicksLimit: 5
+                            },
+                            gridLines: {
+                                display: true
+                            }
+                        }],
+                    },
+                    legend: {
+                        display: false
+                    }
                 }
-            }],
-            yAxes: [{
-                ticks: {
-                    min: 0,
-                    max: 15000,
-                    maxTicksLimit: 5
-                },
-                gridLines: {
-                    display: true
-                }
-            }],
-        },
-        legend: {
-            display: false
-        }
-    }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching user quiz scores:', error);
+        });
 });

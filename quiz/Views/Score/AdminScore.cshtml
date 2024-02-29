@@ -1,14 +1,20 @@
 ﻿@{
     ViewData["Title"] = "Admin Score Stats";
 }
-
 <div class="card mb-4">
     <div class="card-header">
         <i class="fas fa-table me-1"></i>
         DataTable Example
     </div>
     <div class="card-body">
-        <table id="datatablesSimple">
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" style="display: none; text-align: center;">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+
+        <table id="datatablesSimple" style="display:none;">
             <thead>
                 <tr>
                     <th>User</th>
@@ -17,58 +23,85 @@
                     <th>Score</th>
                 </tr>
             </thead>
-            
             <tbody>
-                <tr>
-                    <td>User1</td>
-                    <td>Driver Licence</td>
-                    <td>2023-01-08</td>
-                    <td>1126</td>
-                </tr>
-                <tr>
-                    <td>User2</td>
-                    <td>Life</td>
-                    <td>2023-01-15</td>
-                    <td>1940</td>
-                </tr>
-                <tr>
-                    <td>User3</td>
-                    <td>C#</td>
-                    <td>2023-01-22</td>
-                    <td>1322</td>
-                </tr>
-                <tr>
-                    <td>User4</td>
-                    <td>C++</td>
-                    <td>2023-01-29</td>
-                    <td>123</td>
-                </tr>
-                <tr>
-                    <td>User5</td>
-                    <td>C++</td>
-                    <td>2023-01-29</td>
-                    <td>1530</td>
-                </tr>
-                <tr>
-                    <td>User6</td>
-                    <td>C++</td>
-                    <td>2023-01-29</td>
-                    <td>250</td>
-                </tr>
+                <!-- Data will be loaded here dynamically -->
             </tbody>
-
         </table>
     </div>
 </div>
+
 @section Scripts {
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
 
     <script>
+        // Custom function to format the date
+        function formatDate(dateStr) {
+            const monthNames = ["jan", "feb", "mars", "April", "mai", "juin",
+                "juily", "aug", "sep", "oct", "nov", "dec"];
+            const date = new Date(dateStr);
+            const day = date.getDate();
+            const month = monthNames[date.getMonth()];
+            const year = date.getFullYear();
+            let hours = date.getHours();
+            let minutes = date.getMinutes();
+            const ampm = hours >= 12 ? 'pm' : 'am';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            const strTime = hours + ':' + minutes + ' ' + ampm;
+            return day + "/" + month + "/" + year + " " + strTime;
+        }
+
         $(document).ready(function () {
-            $('#datatablesSimple').DataTable();
+            var table = $('#datatablesSimple').DataTable({
+                "columns": [
+                    { "data": "user" },
+                    { "data": "quiz" },
+                    {
+                        "data": "date",
+                        "render": function (data, type, row) {
+                            return formatDate(data); // Use the custom formatDate function
+                        }
+                    },
+                    { "data": "score" }
+                ],
+                "initComplete": function (settings, json) {
+                    $('#loadingSpinner').hide();
+                    $('#datatablesSimple').show();
+                }
+            });
+
+            // Show spinner while fetching data
+            $('#loadingSpinner').show();
+
+            fetch('/Quiz/GetAdminScoreStats')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Clear existing data
+                    table.clear();
+
+                    // Add new data
+                    table.rows.add(data).draw();
+
+                    // Hide the spinner after data load
+                    $('#loadingSpinner').hide();
+                })
+                .catch(error => {
+                    console.error('Error fetching admin score stats:', error);
+                    $('#loadingSpinner').hide(); // hide spinner if there's an error
+
+                    // Optionally, display a user-friendly error message on the page
+                    $('#datatablesSimple').after('<p>An error occurred while loading the data.</p>');
+                });
         });
-
     </script>
-
 }
+
+
+
+

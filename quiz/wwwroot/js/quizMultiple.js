@@ -130,7 +130,7 @@ function showQuestion() {
         questionNumbersList.appendChild(listItem);
     }
 
-    // Desactiver le selecteur de niveau si la question actuelle n'est pas la première
+    // Desactiver le selecteur de niveau si la question actuelle n'est pas la premiÃ¨re
     if (currentQuestion !== 0) {
         levelSelector.disabled = true;
     } else {
@@ -142,7 +142,7 @@ function checkAnswer(selectedOption) {
     const currentQuizData = quizData[currentLevel][currentQuestion];
     const correctAnswer = currentQuizData.correctAnswer;
 
-    currentQuizData.answeredCorrectly = (selectedOption === correctAnswer); // Mise à jour de answeredCorrectly
+    currentQuizData.answeredCorrectly = (selectedOption === correctAnswer); // Mise Ã  jour de answeredCorrectly
 
     const buttons = optionsContainer.querySelectorAll('div');
     buttons.forEach(div => {
@@ -276,6 +276,7 @@ function calculateAndDisplayScore() {
     document.getElementById('scoreValue').innerText = scoreValue;
     drawGauge(scoreValue); // Draw the gauge with the score value
     showModal();
+    clearInterval(timerInterval);
 }
 function changeLevel() {
     if (currentQuestion === 0) {

@@ -118,7 +118,8 @@ body {
         margin-bottom: 1.5rem;
     }
 
-.questions-nav-section {
+.questions-nav-section,
+.timer-section {
     grid-area: questions-nav-section;
     padding: 1rem;
     box-shadow: 0 7px 7px rgba(0, 0, 0, 0.1);
@@ -165,26 +166,20 @@ body {
     width: 100%;
 }
 
-/* Style pour les questions dejà repondues */
 .question-nums-list a.done {
     background: #c4c4c4;
-    /* Couleur par defaut */
 }
 
     .question-nums-list a.done.correct {
         background: #4CAF50;
-        /* Vert pour les reponses correctes */
     }
 
     .question-nums-list a.done.incorrect {
         background: #f44336;
-        /* Rouge pour les reponses incorrectes */
     }
 
-/* Style pour la question active */
 .question-nums-list a.active {
     background: #3586ff;
-    /* Bleu pour la question active */
 }
 .modal {
     display: none; /* Hidden by default */
@@ -299,7 +294,7 @@ body {
         grid-template-areas:
             "quiz-title quiz-title"
             "question-section questions-nav-section"
-            "explanation-section questions-nav-section";
+            "explanation-section timer-section";
     }
 }
 #prev-btn {
@@ -311,3 +306,28 @@ body {
     #prev-btn span {
         color: black !important;
     }
+
+.timer-section {
+    grid-area: timer-section;
+    margin-top: 1rem;
+}
+
+    .timer-section .timer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .timer-section .timer-title {
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .timer-section .timer-display {
+        font-size: 1.5rem;
+    }
+
+.hidden {
+    display: none;
+}

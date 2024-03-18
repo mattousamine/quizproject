@@ -170,5 +170,39 @@ namespace quiz.Controllers
             var quizzes = await _context.UserQuizzes.ToListAsync();
             return Json(quizzes);
         }
+        //Fonctionalite de connexion d'un user sans compte a la session multijoueur
+        public IActionResult ConnectShow()
+        {
+
+            return View("~/Views/MultiUser/ConnectNoRegisterUser.cshtml");
+        }
+
+        [HttpPost]
+        public IActionResult ConnectShowed()
+        {
+            var username = HttpContext.Request.Form["username"].ToString();
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                TempData["ErrorMessage"] = "Veuillez saisir un non d'utilisateur.";
+            }
+            else
+            {
+                TempData["SuccessMessage"] = $"Hello,{username}";
+                var existingUser = _context.UserQuizzes.FirstOrDefault(u => u.UserQuizUsername == username);
+                if (existingUser != null)
+                {
+                    TempData["ErrorMessage"] = "Ce nom d'utilisateur existe déjà.";
+                    TempData["SuccessMessage"] = "";
+                    return View("~/Views/MultiUser/ConnectNoRegisterUser.cshtml");
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = $"Bonjour, {username}";
+                    TempData["ErrorMessage"] = "";
+                    return View("~/Views/MultiUser/ConnectNoRegisterUser.cshtml");
+                }
+            }
+            return View("~/Views/MultiUser/ConnectNoRegisterUser.cshtml");
+        }
     }
 }

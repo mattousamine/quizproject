@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's create an avatar !</title>
+    <style>
+        body {
+            background-image: url('https://static.vecteezy.com/system/resources/thumbnails/006/691/884/small/blue-question-mark-background-with-text-space-quiz-symbol-vector.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+            font-family: Georgia, serif;
+            font-size: 20px;
+            padding: 20px;
+        }
+
+        input[type="text"], input[type="submit"] {
+            border-radius: 10px;
+            border: 2px solid green;
+            padding: 5px 10px;
+            margin-bottom: 10px;
+        }
+
+        input[type="submit"] {
+            background-color: green;
+            color: white;
+        }
+
+        .error-message {
+            color: red;
+        }
+
+        .success-message {
+            color: green;
+        }
+
+    </style>
+    <!-- Bootstrap CSS -->
+</head>
+<body>
+    <h1>Create your profile</h1>
+    <form action="ConnectShowed" method="post">
+        <label for="">Username: </label>
+        <input type="text" name="username" />
+        <input type="submit" value="connect" />
+    </form>
+    <p>
+        @if(TempData["ErrorMessage"]!=null)
+        {
+            <div class="error-message">@TempData["ErrorMessage"]</div>
+        }
+    </p>
+    <p>
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="success-message">@TempData["SuccessMessage"]</div>
+        }
+    </p>
+</body>
+</html>

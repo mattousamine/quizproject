@@ -9,6 +9,48 @@ const nextButton = document.getElementById('next-btn');
 const levelSelector = document.getElementById('level-selector');
 const resultDiv = document.getElementById('result');
 
+let timerInterval;
+let timerSeconds = 50;
+
+function startTimer() {
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+    const minutes = Math.floor(timerSeconds / 60);
+    const seconds = timerSeconds % 60;
+    const display = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    const timerDisplay = document.getElementById('timer-display');
+
+    if (timerSeconds <= 30) {
+        timerDisplay.style.color = 'red';
+    } else {
+        timerDisplay.style.color = '';
+    }
+
+    timerDisplay.innerText = display;
+
+    if (timerSeconds <= 0) {
+        clearInterval(timerInterval);
+        calculateAndDisplayScore();
+    } else {
+        timerSeconds--;
+    }
+}
+
+startTimer();
+
+document.addEventListener('keydown', function (event) {
+    if (event.code === 'Space' && timerSeconds <= 0) {
+        resetTimer();
+    }
+});
+
+function resetTimer() {
+    timerSeconds = 40;
+    startTimer();
+}
+
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -130,6 +172,7 @@ function nextQuestion() {
         showQuestion();
     } else {
         calculateAndDisplayScore(); 
+        clearInterval(timerInterval);
     }
 }
 

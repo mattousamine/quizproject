@@ -11,6 +11,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+builder.Services.AddHttpClient();
 
 builder.Services.AddDbContext<QuizContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),

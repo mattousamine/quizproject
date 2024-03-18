@@ -3,16 +3,23 @@ using Microsoft.EntityFrameworkCore;
 using quiz.DAL; 
 using quiz.Models;
 using System.Threading.Tasks;
+using System;
+using System.Net.Http;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Net.Http.Headers;
 
 namespace quiz.Controllers
 {
     public class AdminController : Controller
     {
         private readonly QuizContext _context;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public AdminController(QuizContext context)
+        public AdminController(QuizContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<IActionResult> AdminPanel()
@@ -95,6 +102,73 @@ namespace quiz.Controllers
 
             return View("~/Views/Admin/GetAllCategoriesWithDetails.cshtml", categoriesWithDetails);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> MultiPlayerForm()
+        {
+            var quizzes = await _context.Quizzes
+                .Where(q => q.QuizIsActive)
+                .Select(q => new { q.QuizId, q.QuizName })
+                .ToListAsync();
+
+            return View("~/Views/Admin/MultiPlayerForm.cshtml", quizzes);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> ProcessMultiplayerQuiz(int quizId, DateTime beginDateTime, DateTime endDateTime)
+        {
+            string scheme = Request.Scheme;
+            string host = Request.Host.Value;
+            string path = Url.Action("MultiplayerQuiz", "Quiz", new { quizid = quizId, multiplayer = 1 });
+
+            string fullUrl = $"{scheme}://{host}{path}";
+            string encodedQuizUrl = Uri.EscapeDataString(fullUrl);
+            string qrApiUrl = $"https://api.qrserver.com/v1/create-qr-code/?data={fullUrl}&size=200x200";
+
+            var httpClient = _httpClientFactory.CreateClient();
+            string imgUrl = "";
+
+            try
+            {
+                // First, get the QR code image
+                var qrResponse = await httpClient.GetAsync(fullUrl);
+                if (!qrResponse.IsSuccessStatusCode)
+                {
+                    return StatusCode((int)qrResponse.StatusCode, "Error generating QR code");
+                }
+                var imageContent = await qrResponse.Content.ReadAsByteArrayAsync();
+
+                // Then, upload the image to Imgur
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Client-ID", "b7ec07bb1929918");
+                var imgurUploadRequest = new MultipartFormDataContent();
+                imgurUploadRequest.Add(new ByteArrayContent(imageContent), "image");
+
+                var imgurResponse = await httpClient.PostAsync("https://api.imgur.com/3/image", imgurUploadRequest);
+                if (!imgurResponse.IsSuccessStatusCode)
+                {
+                    return StatusCode((int)imgurResponse.StatusCode, "Error uploading image to Imgur");
+                }
+
+                var imgurResponseContent = await imgurResponse.Content.ReadAsStringAsync();
+                dynamic jsonResponse = JsonConvert.DeserializeObject(imgurResponseContent);
+                bool success = jsonResponse.success;
+                if (success)
+                {
+                    imgUrl = jsonResponse.data.link;
+                    return Json(new { Url = imgUrl }); 
+                }
+                else
+                {
+                    return StatusCode(500, "Imgur upload was not successful.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error while generating QR code and uploading to Imgur.");
+            }
+        }
+
 
 
 

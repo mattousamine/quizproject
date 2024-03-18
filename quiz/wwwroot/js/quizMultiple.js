@@ -10,45 +10,50 @@ const levelSelector = document.getElementById('level-selector');
 const resultDiv = document.getElementById('result');
 
 let timerInterval;
-let timerSeconds = 50;
+
+const startDate = new Date('2024-03-15T12:10:00'); 
+const endDate = new Date('2024-03-15T12:20:00'); 
 
 function startTimer() {
     timerInterval = setInterval(updateTimer, 1000);
+    updateTimer(); 
 }
 
 function updateTimer() {
-    const minutes = Math.floor(timerSeconds / 60);
-    const seconds = timerSeconds % 60;
-    const display = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-    const timerDisplay = document.getElementById('timer-display');
+    const currentDate = new Date();
+    const timeDifferenceSeconds = Math.floor((endDate.getTime() - currentDate.getTime()) / 1000); 
 
-    if (timerSeconds <= 30) {
-        timerDisplay.style.color = 'red';
-    } else {
-        timerDisplay.style.color = '';
+    if (timeDifferenceSeconds <= 0) {
+        clearInterval(timerInterval); 
+        calculateAndDisplayScore(); 
+        return;
     }
 
-    timerDisplay.innerText = display;
+    const displayMinutes = Math.floor(timeDifferenceSeconds / 60);
+    const displaySeconds = timeDifferenceSeconds % 60;
+    const display = `${displayMinutes < 10 ? '0' : ''}${displayMinutes}:${displaySeconds < 10 ? '0' : ''}${displaySeconds}`;
 
-    if (timerSeconds <= 0) {
-        clearInterval(timerInterval);
-        calculateAndDisplayScore();
-    } else {
-        timerSeconds--;
+    const timerDisplay = document.getElementById('timer-display'); 
+    if (timerDisplay) {
+        if (timeDifferenceSeconds <= 30) {
+            timerDisplay.style.color = 'red'; 
+        } else {
+            timerDisplay.style.color = ''; 
+        }
+
+        timerDisplay.innerText = display; 
     }
 }
 
-startTimer();
-
-document.addEventListener('keydown', function (event) {
-    if (event.code === 'Space' && timerSeconds <= 0) {
-        resetTimer();
-    }
-});
+const currentDate = new Date();
+if (currentDate >= startDate && currentDate <= endDate) {
+    startTimer(); 
+} else {
+    document.getElementById('timer-display').innerText = "no chrono available"; 
+}
 
 function resetTimer() {
-    timerSeconds = 40;
-    startTimer();
+    startTimer(); 
 }
 
 function shuffleArray(array) {

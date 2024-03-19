@@ -8,7 +8,7 @@ namespace quiz.DAL
         public QuizContext(DbContextOptions<QuizContext> options) : base(options)
         {
         }
-
+        public DbSet<MultiUserSession> MultiUserSession { get; set; }
         public DbSet<UserQuiz> UserQuizzes { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }

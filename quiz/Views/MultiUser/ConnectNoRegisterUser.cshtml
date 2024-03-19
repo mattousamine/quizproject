@@ -1,0 +1,171 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's create an avatar !</title>
+    <style>
+        body {
+            background-image: url('https://static.vecteezy.com/system/resources/thumbnails/006/691/884/small/blue-question-mark-background-with-text-space-quiz-symbol-vector.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+            font-family: Georgia, serif;
+            font-size: 20px;
+            padding: 20px;
+        }
+
+        input[type="text"], button {
+            border-radius: 10px;
+            border: 2px solid green;
+            padding: 5px 10px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: green;
+            color: white;
+        }
+
+        .error-message {
+            color: red;
+        }
+
+        .success-message {
+            color: green;
+        }
+
+    </style>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div id="notificationDiv" class="alert alert-danger d-none" role="alert">
+        <!-- Message will be inserted here -->
+    </div>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+    <h1>Create your user name</h1>
+    <form action="ConnectShowed" method="post">
+        <label for="username">Username: </label>
+        <input type="text" name="username" id="username" />
+        <button type="submit" id="connectButton">Connect </button>
+    </form>
+
+    @section Scripts {
+        <script>
+            $(document).ready(function () {
+                //function to validate username input
+                function validateUsername(input) {
+                    var value = $(input).val().trim();
+                    var inputId = $(input).attr('id');
+                    var message = '';
+                    switch (inputId) {
+                        case 'username':
+                            if (value === '') {
+                                message = 'Username is required.';
+                            }
+                            break;
+                    }
+                    return message;
+                }
+
+                function setButtonState(isFormValid) {
+                    if (isFormValid) {
+                        $('#connectButton').removeAttr('disabled');
+                    } else {
+                        $('#connectButton').attr('disabled', 'disabled');
+                    }
+                }
+
+                function checkFormValidity() {
+                    var isFormValid = true;
+                    $('form input').each(function () {
+                        var errorMessage = validateUsername(this);
+                        if (errorMessage !== '') {
+                            isFormValid = false;
+                            $('#notificationDiv').text(errorMessage).removeClass('d-none');
+                            $('#successMessage').addClass('d-none').text(''); // Clear success message
+                            return false; //Break the loop
+                        }
+                    });
+                    if (isFormValid) {
+                        $('#notificationDiv').addClass('d-none').text('');
+                    }
+                    setButtonState(isFormValid);
+                }
+
+                $('input').blur(function () {
+                    var errorMessage = validateUsername(this);
+                    if (errorMessage !== '') {
+                        $('#notificationDiv').text(errorMessage).removeClass('d-none');
+                        $('#successMessage').addClass('d-none').text(''); // Clear success message
+                    } else {
+                        $('#notificationDiv').addClass('d-none').text('');
+                    }
+                    checkFormValidity();
+                }).keyup(function () {
+                    $('#notificationDiv').addClass('d-none').text(''); // Clear message on keyup
+                    checkFormValidity();
+                });
+
+                $('#username').blur(function () {
+                    var username = $(this).val().trim();
+                    if (username !== '') {
+                        //AJAX call to verify the username
+                        $.ajax({
+                            url: '/userQuizzes/verifyUsername',
+                            type: 'GET',
+                            data: { username: username },
+                            success: function (response) {
+                                if (response.exists) {
+                                    $('#notificationDiv').text('Username is already taken.').removeClass('d-none');
+                                    $('#successMessage').addClass('d-none').text(''); // Clear success message
+                                    $('#connectButton').prop('disabled', true);
+                                } else {
+                                    // Check in the MultiUserSession table
+                                    $.ajax({
+                                        url: '/userQuizzes/VerifyMultiUserSessionUsername',
+                                        type: 'GET',
+                                        data: { username: username },
+                                        success: function (response) {
+                                            if (response.exists) {
+                                                $('#notificationDiv').text('Username is already taken.').removeClass('d-none');
+                                                $('#successMessage').addClass('d-none').text(''); // Clear success message
+                                                $('#connectButton').prop('disabled', true);
+                                            } else {
+                                                $('#notificationDiv').addClass('d-none').text('');
+                                                $('#successMessage').text('Username is available.').removeClass('d-none');
+                                                checkFormValidity();
+                                            }
+                                        },
+                                        error: function (xhr, status, error) {
+                                            console.error("An error occurred: " + error);
+                                            $('#notificationDiv').text('An error occurred. Please try again.').removeClass('d-none');
+                                        }
+                                    });
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("An error occurred: " + error);
+                                $('#notificationDiv').text('An error occurred. Please try again.').removeClass('d-none');
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+    }
+</body>
+</html>

@@ -2,7 +2,13 @@
 @{
     ViewData["Title"] = "Multi Player Form";
 }
+<style>
+    .custom-modal-size {
+        max-width: none;
+        width: 600px; 
+    }
 
+</style>
 <div class="container mt-5">
     <h2 class="text-center mb-4">Select a Quiz for Multiplayer</h2>
 
@@ -15,13 +21,14 @@
             <label for="quizSelect">Select Quiz:</label>
             <select class="form-control" id="quizSelect" name="quizId" required>
                 <option value="">Please select a quiz</option>
-                @foreach (var quiz in Model)
+                @foreach (var quiz in ViewBag.ActiveQuizzes)
                 {
                     <option value="@quiz.QuizId">@quiz.QuizName</option>
                 }
             </select>
+
         </div>
-        <input name="__RequestVerificationToken" type="hidden" value="@Html.AntiForgeryToken()" />
+        
 
         <div class="form-group">
             <label for="beginDateTime">Begin Date and Time:</label>
@@ -31,7 +38,9 @@
             <label for="endDateTime">End Date and Time:</label>
             <input type="datetime-local" class="form-control" id="endDateTime" name="endDateTime" required>
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary" style="margin-top:5px;">Submit</button>
+        @Html.AntiForgeryToken()
+
     </form>
 </div>
 
@@ -55,20 +64,20 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
                 <button type="button" class="btn btn-primary" id="confirmSubmit">Yes, submit it</button>
+                <div id="buttonLoadingIndicator" class="spinner-border spinner-border-sm text-light" role="status" style="display: none;">
+                    <span class="sr-only">Loading...</span>
+                </div>
             </div>
         </div>
     </div>
 </div>
-<div id="loadingIndicator" class="text-center d-none">
-    <div class="spinner-border" role="status">
-        <span class="sr-only">Loading...</span>
-    </div>
-</div>
+
 
 <!-- QR Code Modal -->
 <div class="modal fade" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog custom-modal-size" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="qrModalLabel">QR Code</h5>
@@ -76,114 +85,192 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <img id="qrImage" src="" alt="QR Code" class="img-fluid" />
+            <div class="modal-body d-flex justify-content-center">
+                <img id="qrImage" src="" alt="QR Code" class="img-fluid" style="width: 500px; height: 500px;" />
             </div>
+
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Multiplayer Quiz List</h2>
+    <button type="button" class="btn btn-info ml-2" onclick="window.location.reload();" stype="padding:5px;">
+        <i class="fas fa-sync-alt"></i> Refresh
+    </button>
 
-
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script>
-    $(document).ready(function () {
-        var form = $('#multiPlayerForm');
-        var isValidForm = false; // Variable to store the form's validity
-
-        form.on('submit', function (e) {
-            e.preventDefault(); // Prevent form submission
-
-            var errorMessage = '';
-            var quizId = $('#quizSelect').val();
-            var quizName = $('#quizSelect option:selected').text();
-            var beginDateTime = $('#beginDateTime').val();
-            var endDateTime = $('#endDateTime').val();
-            var now = new Date();
-
-            // Convert to user's local time zone for comparison
-            var beginDateTimeLocal = new Date(beginDateTime);
-            var endDateTimeLocal = new Date(endDateTime);
-
-            if (beginDateTimeLocal < now) {
-                errorMessage = 'Begin date and time must be in the future.';
-            } else if (endDateTimeLocal <= beginDateTimeLocal) {
-                errorMessage = 'End date and time must be after the begin date and time.';
+    <table id="multiPlayerQuizTable" class="display">
+        <thead>
+            <tr>
+                <th>Quiz Name</th>
+                <th>Begin Date</th>
+                <th>End Date</th>
+                <th>QR Link</th>
+                <th>Site Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var quiz in Model)
+            {
+                <tr>
+                    <td>@quiz.QuizName</td>
+                    <td>@quiz.BeginDate.ToString("g")</td>
+                    <td>@quiz.EndDate.ToString("g")</td>
+                    <td><a href="#" class="qr-link" data-toggle="modal" data-target="#qrModal" data-qr="@quiz.QrLink">View QR</a></td>
+                    <td>
+                        <a href="#" class="site-link" data-toggle="modal" data-target="#siteLinkModal" data-site="@quiz.SiteLink">Copy Link</a>
+                    </td>
+                </tr>
             }
 
-            if (errorMessage !== '') {
-                $('#errorMessage').text(errorMessage).removeClass('d-none');
-            } else {
-                // Hide and clear message, fill modal details, and show modal
-                $('#errorMessage').addClass('d-none').text('');
-                $('#quizNameModal').text(quizName);
-                $('#beginDateTimeModal').text(beginDateTimeLocal.toLocaleString());
-                $('#endDateTimeModal').text(endDateTimeLocal.toLocaleString());
-                $('#confirmationModal').modal('show');
-            }
+        </tbody>
+    </table>
+</div>
+<input type="text" id="hiddenInput" style="position: absolute; left: -9999px;">
 
-            $('#loadingIndicator').removeClass('d-none');
 
-            // Perform AJAX request
-            
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
 
-        });
+    <script>
+        $(document).ready(function () {
+            var form = $('#multiPlayerForm');
+            var isValidForm = false; // Variable to store the form's validity
 
-        // Bind to confirm submission button
-        $('#confirmSubmit').click(function () {
-            var _quizId = $('#quizSelect').val();
-            var _beginDateTime = $('#beginDateTime').val();
-            var _endDateTime = $('#endDateTime').val();
-            var now = new Date();
+            form.on('submit', function (e) {
+                e.preventDefault(); // Prevent form submission
 
-            // Convert to user's local time zone for comparison
-            var beginDateTimeLocal = new Date(_beginDateTime);
-            var endDateTimeLocal = new Date(_endDateTime);
+                var errorMessage = '';
+                var quizId = $('#quizSelect').val();
+                var quizName = $('#quizSelect option:selected').text();
+                var beginDateTime = $('#beginDateTime').val();
+                var endDateTime = $('#endDateTime').val();
+                var now = new Date();
 
-            if (beginDateTimeLocal < now || endDateTimeLocal <= beginDateTimeLocal) {
-                $('#confirmationModal').modal('hide');
-                $('#errorMessage').removeClass('d-none').text('Invalid date and time provided.');
-            } else {
+                // Convert to user's local time zone for comparison
+                var beginDateTimeLocal = new Date(beginDateTime);
+                var endDateTimeLocal = new Date(endDateTime);
+
+                if (beginDateTimeLocal < now) {
+                    errorMessage = 'Begin date and time must be in the future.';
+                } else if (endDateTimeLocal <= beginDateTimeLocal) {
+                    errorMessage = 'End date and time must be after the begin date and time.';
+                }
+
+                if (errorMessage !== '') {
+                    $('#errorMessage').text(errorMessage).removeClass('d-none');
+                } else {
+                    // Hide and clear message, fill modal details, and show modal
+                    $('#errorMessage').addClass('d-none').text('');
+                    $('#quizNameModal').text(quizName);
+                    $('#beginDateTimeModal').text(beginDateTimeLocal.toLocaleString());
+                    $('#endDateTimeModal').text(endDateTimeLocal.toLocaleString());
+                    $('#confirmationModal').modal('show');
+                }
+
+                $('#loadingIndicator').removeClass('d-none');
+
+                // Perform AJAX request
+
+
+            });
+
+            $('#confirmSubmit').click(function () {
+                // Assuming your validation passed, and you're ready to submit
+                $('#confirmSubmit').hide(); // Hide the confirmation button
+                $('#buttonLoadingIndicator').show(); // Show loading indicator
+
+                var quizId = $('#quizSelect').val();
+                var beginDateTime = $('#beginDateTime').val();
+                var endDateTime = $('#endDateTime').val();
+
                 $.ajax({
-                    url: '/Admin/ProcessMultiplayerQuiz', // Corrected URL
+                    url: '/Admin/ProcessMultiplayerQuiz', // Make sure the URL is correct
                     type: 'POST',
                     data: {
-                        quizId: _quizId,
-                        beginDateTime: _beginDateTime,
-                        endDateTime: _endDateTime
+                        quizId: quizId,
+                        beginDateTime: beginDateTime,
+                        endDateTime: endDateTime
                     },
                     headers: {
-                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() // Include CSRF token
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() // CSRF token
                     },
                     success: function (response) {
-                        if (response.Url) {
-                            $('#qrImage').attr('src', response.Url);
+                        // Handle success
+                        if (response.url) {
+                            $('#qrImage').attr('src', response.url);
                             $('#qrModal').modal('show');
                         } else {
                             $('#errorMessage').text('Failed to generate QR code').removeClass('d-none');
                         }
+
+                        // Reset modal state
+                        $('#buttonLoadingIndicator').hide(); // Hide loading indicator
+                        $('#confirmSubmit').show(); // Show the confirmation button again for future use
+                        $('#confirmationModal').modal('hide'); // Optionally hide the confirmation modal
                     },
                     error: function () {
+                        // Handle error
                         $('#errorMessage').text('An error occurred').removeClass('d-none');
+
+                        // Reset modal state
+                        $('#buttonLoadingIndicator').hide(); // Hide loading indicator
+                        $('#confirmSubmit').show(); // Show the confirmation button again
+                        $('#confirmationModal').modal('hide'); // Optionally hide the confirmation modal
                     }
                 });
+            });
+
+
+
+
+
+            // Bind to cancel button in modal to close modal
+            $('.close, .btn-secondary').click(function () {
+                $('#confirmationModal').modal('hide');
+            });
+
+            $('input, select').on('change', function () {
+                // Optionally hide the error message when the user starts correcting the form
+                $('#errorMessage').addClass('d-none').text('');
+            });
+
+            $('#multiPlayerQuizTable').DataTable();
+
+            $('.qr-link').click(function () {
+                var qrLink = $(this).data('qr');
+                $('#qrImage').attr('src', qrLink);
+            });
+
+            $('.site-link').click(function (event) {
+                event.preventDefault(); // Prevent the default anchor action
+                var siteLink = $(this).data('site');
+                var hiddenInput = $('#hiddenInput');
+                hiddenInput.val(siteLink); // Set the value of the hidden input to the site link
+
+                // Copy the content of the hidden input to the clipboard
+                hiddenInput.select();
+                document.execCommand('copy');
+
+                // Provide feedback to the user
+                alert("Copied to clipboard: " + siteLink);
+            });
+
+            function copyToClipboard() {
+                var copyText = document.getElementById("siteLinkText");
+                copyText.select();
+                copyText.setSelectionRange(0, 99999); // For mobile devices
+                document.execCommand("copy");
+                alert("Copied to clipboard: " + copyText.value);
             }
+
+            window.copyToClipboard = copyToClipboard; // Make it available globally
         });
 
-
-        // Bind to cancel button in modal to close modal
-        $('.close, .btn-secondary').click(function () {
-            $('#confirmationModal').modal('hide');
-        });
-
-        $('input, select').on('change', function () {
-            // Optionally hide the error message when the user starts correcting the form
-            $('#errorMessage').addClass('d-none').text('');
-        });
-    });
-
-</script>
+    </script>
+}

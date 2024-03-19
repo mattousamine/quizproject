@@ -22,6 +22,7 @@ namespace quiz.DAL
         public DbSet<UserIssue> UserIssues { get; set; }
         public DbSet<QuizQuestion> QuizQuestions { get; set; }
         public DbSet<QuestionOption> QuestionOptions { get; set; }
+        public DbSet<MultiPlayerQuiz> MultiPlayerQuiz { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

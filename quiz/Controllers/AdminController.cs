@@ -106,13 +106,30 @@ namespace quiz.Controllers
         [HttpGet]
         public async Task<IActionResult> MultiPlayerForm()
         {
-            var quizzes = await _context.Quizzes
+            var activeQuizzes = await _context.Quizzes
                 .Where(q => q.QuizIsActive)
                 .Select(q => new { q.QuizId, q.QuizName })
                 .ToListAsync();
 
-            return View("~/Views/Admin/MultiPlayerForm.cshtml", quizzes);
+            var multiplayerQuizzes = await _context.MultiPlayerQuiz
+                .Select(mq => new {
+                    mq.Quiz.QuizName,
+                    mq.BeginDate,
+                    mq.EndDate,
+                    mq.QrLink,
+                    mq.SiteLink
+                })
+                .ToListAsync();
+
+            // Assign the active quizzes to ViewBag or ViewData
+            ViewBag.ActiveQuizzes = activeQuizzes;
+            // Or use ViewData if you prefer: ViewData["ActiveQuizzes"] = activeQuizzes;
+
+            // Pass the multiplayer quizzes as the model for the view
+            return View("~/Views/Admin/MultiPlayerForm.cshtml", multiplayerQuizzes);
         }
+
+
 
 
         [HttpPost]
@@ -124,23 +141,18 @@ namespace quiz.Controllers
 
             string fullUrl = $"{scheme}://{host}{path}";
             string encodedQuizUrl = Uri.EscapeDataString(fullUrl);
-            string qrApiUrl = $"https://api.qrserver.com/v1/create-qr-code/?data={fullUrl}&size=200x200";
+            string qrApiUrl = $"https://api.qrserver.com/v1/create-qr-code/?data={encodedQuizUrl}&size=500x500";
 
-            var httpClient = _httpClientFactory.CreateClient();
             string imgUrl = "";
 
             try
             {
-                // First, get the QR code image
-                var qrResponse = await httpClient.GetAsync(fullUrl);
-                if (!qrResponse.IsSuccessStatusCode)
-                {
-                    return StatusCode((int)qrResponse.StatusCode, "Error generating QR code");
-                }
-                var imageContent = await qrResponse.Content.ReadAsByteArrayAsync();
+                // First, get the QR code image using the separate method
+                var imageContent = await GetQRCodeImageAsync(qrApiUrl);
 
                 // Then, upload the image to Imgur
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Client-ID", "b7ec07bb1929918");
+                var httpClient = _httpClientFactory.CreateClient();
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Client-ID", "YourClientID");
                 var imgurUploadRequest = new MultipartFormDataContent();
                 imgurUploadRequest.Add(new ByteArrayContent(imageContent), "image");
 
@@ -156,7 +168,20 @@ namespace quiz.Controllers
                 if (success)
                 {
                     imgUrl = jsonResponse.data.link;
-                    return Json(new { Url = imgUrl }); 
+                    // Add to database here
+                    var newQuiz = new MultiPlayerQuiz
+                    {
+                        QuizId = quizId,
+                        BeginDate = beginDateTime,
+                        EndDate = endDateTime,
+                        QrLink = imgUrl,
+                        SiteLink = fullUrl // Assuming this is the site link you want to save
+                    };
+
+                    _context.MultiPlayerQuiz.Add(newQuiz);
+                    await _context.SaveChangesAsync();
+
+                    return Json(new { Url = imgUrl });
                 }
                 else
                 {
@@ -168,6 +193,24 @@ namespace quiz.Controllers
                 return StatusCode(500, "Internal server error while generating QR code and uploading to Imgur.");
             }
         }
+
+
+
+        private async Task<byte[]> GetQRCodeImageAsync(string qrApiUrl)
+        {
+            var httpClient = _httpClientFactory.CreateClient();
+            var response = await httpClient.GetAsync(qrApiUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsByteArrayAsync();
+            }
+            else
+            {
+                throw new Exception("Failed to generate QR code");
+            }
+        }
+
+
 
 
 

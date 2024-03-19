@@ -11,8 +11,8 @@ const resultDiv = document.getElementById('result');
 
 let timerInterval;
 
-const startDate = new Date('2024-03-15T12:10:00'); 
-const endDate = new Date('2024-03-15T12:20:00'); 
+const startDate = new Date('2024-03-19T00:36:00'); 
+const endDate = new Date('2024-03-19T00:50:00'); 
 
 function startTimer() {
     timerInterval = setInterval(updateTimer, 1000);
@@ -21,36 +21,78 @@ function startTimer() {
 
 function updateTimer() {
     const currentDate = new Date();
-    const timeDifferenceSeconds = Math.floor((endDate.getTime() - currentDate.getTime()) / 1000); 
+    let timeDifferenceSeconds;
 
-    if (timeDifferenceSeconds <= 0) {
-        clearInterval(timerInterval); 
-        calculateAndDisplayScore(); 
-        return;
+    let timerLabel = ''; 
+
+    if (currentDate < startDate) {
+        timeDifferenceSeconds = Math.floor((startDate.getTime() - currentDate.getTime()) / 1000);
+        timerLabel = 'Starts in';
+
+        const buttons = optionsContainer.querySelectorAll('div');
+        buttons.forEach(div => {
+            div.style.pointerEvents = 'none';
+        });
+
+    } else {
+        timeDifferenceSeconds = Math.floor((endDate.getTime() - currentDate.getTime()) / 1000);
+        if (currentDate <= endDate) {
+            timerLabel = 'Time left';
+
+            const buttons = optionsContainer.querySelectorAll('div');
+            buttons.forEach(div => {
+                div.style.pointerEvents = '';
+            });
+        } else {
+            timerLabel = 'Timer';
+        }
     }
 
-    const displayMinutes = Math.floor(timeDifferenceSeconds / 60);
-    const displaySeconds = timeDifferenceSeconds % 60;
-    const display = `${displayMinutes < 10 ? '0' : ''}${displayMinutes}:${displaySeconds < 10 ? '0' : ''}${displaySeconds}`;
+    if (currentDate >= endDate && currentDate > startDate) {
+        clearInterval(timerInterval);
+        calculateAndDisplayScore();
+    }
 
-    const timerDisplay = document.getElementById('timer-display'); 
+    const displayDays = Math.floor(timeDifferenceSeconds / (60 * 60 * 24));
+    const displayHours = Math.floor((timeDifferenceSeconds % (60 * 60 * 24)) / (60 * 60));
+    const displayMinutes = Math.floor((timeDifferenceSeconds % (60 * 60)) / 60);
+    const displaySeconds = timeDifferenceSeconds % 60;
+
+    let display = '';
+
+    if (displayDays > 0) {
+        display += `${displayDays}d `;
+    }
+    if (displayHours > 0 || displayDays > 0) {
+        display += `${displayHours}h `;
+    }
+    display += `${displayMinutes}:${displaySeconds}`;
+
+    const timerDisplay = document.getElementById('timer-display');
+    const timerTitle = document.getElementById('Timer-Title');
     if (timerDisplay) {
         if (timeDifferenceSeconds <= 30) {
-            timerDisplay.style.color = 'red'; 
+            timerDisplay.style.color = 'red';
         } else {
-            timerDisplay.style.color = ''; 
+            timerDisplay.style.color = '';
         }
 
-        timerDisplay.innerText = display; 
+        timerDisplay.innerText = display;
+        timerTitle.innerText = timerLabel; 
     }
 }
+
 
 const currentDate = new Date();
 if (currentDate >= startDate && currentDate <= endDate) {
-    startTimer(); 
+    startTimer();
+} else if (currentDate < startDate) {
+    startTimer();
 } else {
-    document.getElementById('timer-display').innerText = "no chrono available"; 
+    document.getElementById('timer-display').innerText = "Unlimited Time";
 }
+
+
 
 function resetTimer() {
     startTimer(); 
@@ -95,7 +137,6 @@ function showQuestion() {
 
     if (currentQuestion === quizData[currentLevel].length - 1) {
         nextButton.innerText = 'Terminer';
-        
     } else {
         nextButton.innerText = 'Suivant';
     }
@@ -178,6 +219,11 @@ function nextQuestion() {
     } else {
         calculateAndDisplayScore(); 
         clearInterval(timerInterval);
+        const optionDivs = optionsContainer.querySelectorAll('div');
+        optionDivs.forEach(div => {
+            div.disabled = true;
+        });
+        nextButton.disabled = true;
     }
 }
 
@@ -288,6 +334,15 @@ function calculateAndDisplayScore() {
 
     // Call the SaveQuizSession action via AJAX
     saveQuizSession(quizId, scoreValue);
+
+    // Désactiver les clics sur les options lorsque le score est terminée
+    const buttons = optionsContainer.querySelectorAll('div');
+    buttons.forEach(div => {
+        div.style.pointerEvents = 'none'; 
+    });
+    nextButton.disabled = true;
+    return;
+
 }
 function saveQuizSession(quizId, scorePercentage) {
     $.ajax({

@@ -10,45 +10,93 @@ const levelSelector = document.getElementById('level-selector');
 const resultDiv = document.getElementById('result');
 
 let timerInterval;
-let timerSeconds = 50;
+
+const startDate = new Date('2024-03-20T00:00:00'); 
+const endDate = new Date('2024-03-20T00:05:00'); 
 
 function startTimer() {
     timerInterval = setInterval(updateTimer, 1000);
+    updateTimer(); 
 }
 
 function updateTimer() {
-    const minutes = Math.floor(timerSeconds / 60);
-    const seconds = timerSeconds % 60;
-    const display = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-    const timerDisplay = document.getElementById('timer-display');
+    const currentDate = new Date();
+    let timeDifferenceSeconds;
 
-    if (timerSeconds <= 30) {
-        timerDisplay.style.color = 'red';
+    let timerLabel = ''; 
+
+    if (currentDate < startDate) {
+        timeDifferenceSeconds = Math.floor((startDate.getTime() - currentDate.getTime()) / 1000);
+        timerLabel = 'Starts in';
+
+        const buttons = optionsContainer.querySelectorAll('div');
+        buttons.forEach(div => {
+            div.style.pointerEvents = 'none';
+        });
+
     } else {
-        timerDisplay.style.color = '';
+        timeDifferenceSeconds = Math.floor((endDate.getTime() - currentDate.getTime()) / 1000);
+        if (currentDate <= endDate) {
+            timerLabel = 'Time left';
+
+            const buttons = optionsContainer.querySelectorAll('div');
+            buttons.forEach(div => {
+                div.style.pointerEvents = '';
+            });
+        } else {
+            timerLabel = 'Timer';
+        }
     }
 
-    timerDisplay.innerText = display;
-
-    if (timerSeconds <= 0) {
+    if (currentDate >= endDate && currentDate > startDate) {
         clearInterval(timerInterval);
         calculateAndDisplayScore();
-    } else {
-        timerSeconds--;
+        return;
+    }
+
+    const displayDays = Math.floor(timeDifferenceSeconds / (60 * 60 * 24));
+    const displayHours = Math.floor((timeDifferenceSeconds % (60 * 60 * 24)) / (60 * 60));
+    const displayMinutes = Math.floor((timeDifferenceSeconds % (60 * 60)) / 60);
+    const displaySeconds = timeDifferenceSeconds % 60;
+
+    let display = '';
+
+    if (displayDays > 0) {
+        display += `${displayDays}d `;
+    }
+    if (displayHours > 0 || displayDays > 0) {
+        display += `${displayHours}h `;
+    }
+    display += `${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
+
+    const timerDisplay = document.getElementById('timer-display');
+    const timerTitle = document.getElementById('Timer-Title');
+    if (timerDisplay) {
+        if (timeDifferenceSeconds <= 59) {
+            timerDisplay.style.color = 'red';
+        } else {
+            timerDisplay.style.color = '';
+        }
+
+        timerDisplay.innerText = display;
+        timerTitle.innerText = timerLabel; 
     }
 }
 
-startTimer();
 
-document.addEventListener('keydown', function (event) {
-    if (event.code === 'Space' && timerSeconds <= 0) {
-        resetTimer();
-    }
-});
+const currentDate = new Date();
+if (currentDate >= startDate && currentDate <= endDate) {
+    startTimer();
+} else if (currentDate < startDate) {
+    startTimer();
+} else {
+    document.getElementById('timer-display').innerText = "Unlimited Time";
+}
+
+
 
 function resetTimer() {
-    timerSeconds = 40;
-    startTimer();
+    startTimer(); 
 }
 
 function shuffleArray(array) {
@@ -90,7 +138,6 @@ function showQuestion() {
 
     if (currentQuestion === quizData[currentLevel].length - 1) {
         nextButton.innerText = 'Terminer';
-        
     } else {
         nextButton.innerText = 'Suivant';
     }
@@ -173,6 +220,11 @@ function nextQuestion() {
     } else {
         calculateAndDisplayScore(); 
         clearInterval(timerInterval);
+        const optionDivs = optionsContainer.querySelectorAll('div');
+        optionDivs.forEach(div => {
+            div.disabled = true;
+        });
+        nextButton.disabled = true;
     }
 }
 
@@ -283,6 +335,15 @@ function calculateAndDisplayScore() {
 
     // Call the SaveQuizSession action via AJAX
     saveQuizSession(quizId, scoreValue);
+
+    // Désactiver les clics sur les options lorsque le score est terminée
+    const buttons = optionsContainer.querySelectorAll('div');
+    buttons.forEach(div => {
+        div.style.pointerEvents = 'none'; 
+    });
+    nextButton.disabled = true;
+    return;
+
 }
 function saveQuizSession(quizId, scorePercentage) {
     $.ajax({

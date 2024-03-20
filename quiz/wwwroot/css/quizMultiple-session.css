@@ -1,0 +1,870 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #3586ff;
+    font-family: 'Font1', sans-serif;
+}
+
+#spongeBobAnimation .face {
+    position: relative;
+   
+}
+
+#spongeBobAnimation .eyes {
+    position: relative;
+    display: flex;
+}
+
+    #spongeBobAnimation .eyes .eye {
+        width: 150px;
+        height: 150px;
+        background-color: #fff;
+        border-radius: 50%;
+        border: 1px solid #333;
+        position: relative
+    }
+
+        #spongeBobAnimation .eyes .eye:before {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #26b9cb;
+            border-radius: 50%;
+            border: 1px solid #333;
+            top: 50%;
+            left: 30px;
+            transform: translate(-50%, -50%)
+        }
+
+        #spongeBobAnimation .eyes .eye:after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #0457a0;
+            border-radius: 50%;
+            top: 40%;
+            left: 10%
+        }
+
+#spongeBobAnimation .eyelash1 {
+    width: 5px;
+    height: 35px;
+    background-color: #000;
+    position: relative;
+    top: -186px;
+    left: 70px;
+    border-radius: 20px 20px 50% 50%;
+}
+
+    #spongeBobAnimation .eyelash1:before {
+        content: '';
+        position: absolute;
+        width: 5px;
+        height: 35px;
+        background-color: #000;
+        top: 16px;
+        left: -50px;
+        transform: rotate(-35deg);
+        border-radius: 20px 20px 50% 50%;
+    }
+
+    #spongeBobAnimation .eyelash1:after {
+        content: '';
+        position: absolute;
+        width: 5px;
+        height: 35px;
+        background-color: #000;
+        top: 13px;
+        left: 50px;
+        transform: rotate(35deg);
+        border-radius: 20px 20px 50% 50%;
+    }
+
+#spongeBobAnimation .eyelash2 {
+    width: 5px;
+    height: 35px;
+    background-color: #000;
+    position: relative;
+    top: -222px;
+    left: 220px;
+    border-radius: 20px 20px 50% 50%;
+}
+
+    #spongeBobAnimation .eyelash2:before {
+        content: '';
+        position: absolute;
+        width: 5px;
+        height: 35px;
+        background-color: #000;
+        top: 18px;
+        left: -50px;
+        transform: rotate(-35deg);
+        border-radius: 20px 20px 50% 50%;
+    }
+
+    #spongeBobAnimation .eyelash2:after {
+        content: '';
+        position: absolute;
+        width: 5px;
+        height: 35px;
+        background-color: #000;
+        top: 13px;
+        left: 50px;
+        transform: rotate(35deg);
+        border-radius: 20px 20px 50% 50%;
+    }
+
+#spongeBobAnimation .nose {
+    width: 50px;
+    height: 80px;
+    border: 1px solid #555;
+    background-color: #f7e948;
+    border-radius: 50%;
+    position: relative;
+    top: -150px;
+    left: 120px;
+}
+
+    #spongeBobAnimation .nose:before {
+        content: '';
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        background-color: #f7e948;
+        border-radius: 40%;
+        top: 65px;
+        left: 7px;
+    }
+
+    #spongeBobAnimation .nose:after {
+        content: '';
+        position: absolute;
+        width: 13px;
+        height: 13px;
+        background-color: #aead0d;
+        border-radius: 40%;
+        top: -60px;
+        left: -160px;
+    }
+
+#spongeBobAnimation .burger1 {
+    position: relative;
+    background-color: #ed7f8c;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    top: -100px;
+    left: 20px;
+}
+
+    #spongeBobAnimation .burger1:before {
+        content: '';
+        position: absolute;
+        background-color: #ed7f8c;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        top: -30px;
+        left: -30px;
+    }
+
+    #spongeBobAnimation .burger1:after {
+        content: '';
+        position: absolute;
+        background-color: #ed7f8c;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        top: -20px;
+        left: 30px;
+    }
+
+#spongeBobAnimation .burger2 {
+    position: relative;
+    background-color: #ed7f8c;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    top: -100px;
+    left: 270px;
+}
+
+    #spongeBobAnimation .burger2:before {
+        content: '';
+        position: absolute;
+        background-color: #ed7f8c;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        top: -20px;
+        left: -30px;
+    }
+
+    #spongeBobAnimation .burger2:after {
+        content: '';
+        position: absolute;
+        background-color: #ed7f8c;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        top: -30px;
+        left: 30px;
+    }
+
+#spongeBobAnimation .mouth {
+    position: relative;
+    width: 140px;
+    height: 40px;
+    border-top: 3px solid #333;
+    border-radius: 50%;
+    transform: rotate(-8deg);
+    top: -50px;
+    left: 80px;
+    transition-duration: .5s
+}
+
+#spongeBobAnimation .face:hover .mouth {
+    border-top: 0;
+    border-bottom: 3px solid #333;
+    top: -80px;
+    transform: rotate(0);
+}
+
+#spongeBobAnimation .mouth:before {
+    content: '';
+    position: absolute;
+    width: 35px;
+    height: 33px;
+    border: 2px solid #333;
+    background-color: #fff;
+    transform: rotate(8deg);
+    left: 30px;
+    top: -4px;
+}
+
+#spongeBobAnimation .face:hover .mouth:before {
+    top: 40px;
+    transform: rotate(0);
+}
+
+#spongeBobAnimation .mouth:after {
+    content: '';
+    position: absolute;
+    width: 35px;
+    height: 35px;
+    border: 2px solid #333;
+    background-color: #fff;
+    transform: rotate(8deg);
+    left: 80px;
+    top: 1px;
+}
+
+#spongeBobAnimation .face:hover .mouth:after {
+    top: 40px;
+    transform: rotate(0);
+}
+
+#spongeBobAnimation .mouth2 {
+    position: relative;
+    top: -94px;
+    left: 90px;
+}
+
+    #spongeBobAnimation .mouth2:before {
+        content: '';
+        position: absolute;
+        width: 80px;
+        height: 30px;
+        border-bottom: 2px solid #ed7f8c;
+        border-radius: 50%;
+        top: 80px;
+        left: -20px;
+    }
+
+    #spongeBobAnimation .mouth2:after {
+        content: '';
+        position: absolute;
+        width: 70px;
+        height: 30px;
+        border-bottom: 2px solid #ed7f8c;
+        border-radius: 50%;
+        top: 80px;
+        left: 65px;
+    }
+
+#spongeBobAnimation .patch1 {
+    position: relative;
+    width: 40px;
+    height: 50px;
+    background-color: #aead0d;
+    border-radius: 50% 80% 40% 50% / 90% 70% 90% 60%;
+    transform: rotate(10deg);
+    top: -100px;
+    left: -30px;
+}
+
+    #spongeBobAnimation .patch1:before {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background-color: #aead0d;
+        border-radius: 60% 80% 50% 60% / 90% 70% 90% 60%;
+        top: -30px;
+        left: -20px;
+    }
+
+    #spongeBobAnimation .patch1:after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background-color: #aead0d;
+        border-radius: 60% 80% 50% 60% / 90% 70% 90% 60%;
+        transform: rotate(10deg);
+        top: -320px;
+        left: -50px;
+    }
+
+#spongeBobAnimation .patch2 {
+    position: relative;
+    width: 45px;
+    height: 55px;
+    background-color: #aead0d;
+    border-radius: 60% 80% 50% 50% / 90% 80% 90% 70%;
+    transform: rotate(50deg);
+    top: -160px;
+    left: 280px;
+}
+
+    #spongeBobAnimation .patch2:before {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background-color: #aead0d;
+        border-radius: 60% 80% 50% 60% / 90% 70% 90% 60%;
+        top: 90px;
+        left: 20px;
+    }
+
+    #spongeBobAnimation .patch2:after {
+        content: '';
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        background-color: #aead0d;
+        border-radius: 60% 80% 50% 60% / 90% 70% 90% 60%;
+        top: -210px;
+        left: -250px;
+    }
+
+#spongeBobAnimation.spongebob-animation {
+    position: absolute;
+    top: 0%;
+    left: 60%;
+    transform: translateX(0%) scale(0.2);
+    transform-origin: top center;
+    background-color: #f7e948; /* SpongeBob yellow */
+    width: 320px;
+    height: auto;
+    margin: 20px auto;
+}
+
+.container-sponge {
+    display: flex;
+    flex-direction: row; /* Default to a row for larger screens */
+    align-items: start;
+    justify-content: space-around;
+    gap: 20px;
+    background-color: #f7e948; /* Light sky background */
+    font-family: 'Arial', sans-serif;
+    padding: 20px;
+    flex-wrap: wrap; /* Allow items to wrap as needed */
+}
+#spongeBobAnimation-container {
+    order: 2; /* SpongeBob second */
+    flex: 1; /* Allow SpongeBob to grow and fill available space */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.large-central-area {
+    order: 3; /* Large central area last */
+    width: 100%; /* Full width to utilize all available space */
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    min-height: 300px;
+}
+.left-section {
+    order: 1; /* Input section first */
+}
+.input-sm-screen {
+    max-width: 100%;
+}
+.large-central-area {
+    max-height: 65vh; /* 65% of the viewport height */
+    overflow-y: auto; /* Allows scrolling */
+    position: relative; /* Needed for absolute positioning of children */
+}
+
+.charging-line-container {
+    width: 100%; /* Full width of the container */
+    height: 5px; /* Height of the charging line */
+    background-color: #f0f0f0; /* Background of the charging line container */
+    position: absolute; /* Positioning it at the top */
+    top: 0;
+    left: 0;
+}
+
+.charging-line {
+    height: 100%; /* Full height of the container */
+    width: 0%; /* Initial width */
+    background-color: #ffc107; /* Yellow color */
+    animation: charge 2s infinite linear; /* Animation applied */
+}/* Media query for small screens */
+@keyframes charge {
+    0% {
+        width: 0%;
+    }
+
+    50% {
+        width: 100%;
+    }
+
+    100% {
+        width: 0%;
+    }
+}
+    @media (max-width: 576px) {
+        #spongeBobAnimation {
+            /* Adjust size and position of SpongeBob */
+            width: 100%; /* Or a specific size that fits */
+            height: auto;
+            position: relative; /* Change as needed */
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container-sponge {
+            flex-direction: column; /* Stack elements vertically on smaller screens */
+        }
+
+        .left-section, #spongeBobAnimation-container, .large-central-area {
+            width: 100%; /* Ensure full width for all elements for consistency */
+        }
+
+        #spongeBobAnimation-container {
+            margin-bottom: 20px; /* Space between SpongeBob and the large central area */
+        }
+
+        #spongeBobAnimation {
+            /* Make sure the animation fits the width of its container and does not overflow */
+            max-width: 100%;
+            height: auto;
+        }
+
+        .input-section {
+            /* This ensures the input does not exceed the width of its container */
+            max-width: 100%;
+        }
+
+        #userInput {
+            /* This could be set to 100% width to make sure it's responsive */
+            width: 100%;
+        }
+    }
+
+    .input-section {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+    .input-section input[type="text"] {
+        padding: 10px;
+        border-radius: 20px;
+        border: 2px solid #ffcc00;
+        font-size: 16px;
+    }
+
+    .input-section button {
+        padding: 10px 20px;
+        margin-left: 10px;
+        background-color: #ffcc00; /* Button color */
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+        .input-section button:hover {
+            background-color: #ffdd55;
+        }
+
+.text-indicator {
+    margin-top: 10px;
+    color: #333;
+    font-size: 14px;
+}
+
+.large-central-area {
+    width: 80%;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Adjust the height as needed */
+    min-height: 300px;
+}
+.container {
+    width: 95%;
+    max-width: 64rem;
+    margin: 2rem auto;
+    background: #fff;
+    padding: 0.8rem;
+    border-radius: 1rem;
+    overflow: auto;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr; /* Single column layout */
+    grid-template-rows: auto auto auto; /* Define the height for each row */
+    grid-template-areas:
+        "quiz-title"
+        "question-section"
+        "explanation-section"
+        "questions-nav-section";
+}
+
+.quiz-title {
+    grid-area: quiz-title;
+    font-weight: 800;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.question-section {
+    grid-area: question-section
+}
+
+.question {
+    padding: 0.5rem;
+    border: 2px solid #799efe;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+    .question .question-text {
+        margin-bottom: 0.5rem;
+    }
+
+    .question .question-num {
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+.answer-item span {
+    padding: 2%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 7px 7px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+    .answer-item span:hover {
+        background: #aabdff;
+        color: #fff;
+    }
+
+.answer-item input[type="radio"] {
+    display: none;
+}
+
+.action {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.btn {
+    background: inherit;
+    border: 0;
+    border-radius: 0.5rem;
+    box-shadow: 0 7px 7px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 1rem;
+    margin-right: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+    .btn:hover {
+        background: #aabdff;
+        color: #fff;
+    }
+
+.explanation-section {
+    grid-area: explanation-section;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 7px 7px rgba(0, 0, 0, 0.1);
+}
+
+    .explanation-section .section-title {
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .explanation-section .explanation-text {
+        margin-right: 1rem;
+        margin-left: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+.questions-nav-section,
+.timer-section {
+    grid-area: questions-nav-section;
+    padding: 1rem;
+    box-shadow: 0 7px 7px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+}
+
+    .questions-nav-section .question-nums-list {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        grid-auto-rows: minmax(0, 1fr);
+        gap: 10px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .questions-nav-section .question-nums-list a {
+            text-decoration: none;
+            color: inherit;
+            padding: 0.5rem;
+            background: #c4c4c4;
+            border-radius: 50%;
+            display: inline-block;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            pointer-events: none;
+        }
+
+.question-context {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.d-flex {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.question-nums-list a.done {
+    background: #c4c4c4;
+}
+
+    .question-nums-list a.done.correct {
+        background: #4CAF50;
+    }
+
+    .question-nums-list a.done.incorrect {
+        background: #f44336;
+    }
+
+.question-nums-list a.active {
+    background: #3586ff;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    -webkit-animation-name: fadeIn; /* Fade in the background */
+    -webkit-animation-duration: 0.4s;
+    animation-name: fadeIn;
+    animation-duration: 0.4s
+}
+
+.modal-content {
+    position: fixed; /* Stay in place */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center the modal */
+    background-color: #fefefe;
+    padding: 20px;
+    border-radius: 10px; /* Rounded corners */
+    width: 40%; /* Adjust as necessary for size */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.19); /* Add some shadow for depth */
+    animation-name: zoomIn;
+    animation-duration: 0.4s;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed; /* or 'absolute' if 'fixed' doesn't fit your needs */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7); /* Optional: adds a slight overlay */
+    z-index: 1000; /* Ensures it's above other content */
+}
+
+    .loading-container i {
+        font-size: 3em; /* Adjust size as necessary */
+    }
+
+@keyframes zoomIn {
+    from {
+        transform: translate(-50%, -50%) scale(0)
+    }
+
+    to {
+        transform: translate(-50%, -50%) scale(1)
+    }
+}
+/* Add Animation */
+@-webkit-keyframes slideIn {
+    from {
+        bottom: -300px;
+        opacity: 0
+    }
+
+    to {
+        bottom: 0;
+        opacity: 1
+    }
+}
+
+@keyframes slideIn {
+    from {
+        bottom: -300px;
+        opacity: 0
+    }
+
+    to {
+        bottom: 0;
+        opacity: 1
+    }
+}
+
+@-webkit-keyframes fadeIn {
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
+    }
+}
+
+.close-button {
+    color: white;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+    .close-button:hover,
+    .close-button:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+/* Style the gauge container specifically for a gaming theme */
+#gaugeContainer {
+    background-color: white; /* Change to white */
+    border: 2px solid #add8e6; /* Light blue border */
+    box-shadow: 0 0 10px #0000ff; /* Blue glow for the shadow */
+    border-radius: 50%;
+}
+
+
+@media screen and (min-width: 768px) {
+    .container {
+        grid-template-columns: 2fr 1fr; /* Adjust the number of columns for larger screens */
+        grid-template-areas:
+            "quiz-title quiz-title"
+            "question-section questions-nav-section"
+            "explanation-section timer-section";
+    }
+}
+
+#prev-btn {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+    #prev-btn i,
+    #prev-btn span {
+        color: black !important;
+    }
+
+.timer-section {
+    grid-area: timer-section;
+    margin-top: 1rem;
+}
+
+    .timer-section .timer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .timer-section .timer-title {
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .timer-section .timer-display {
+        font-size: 1.5rem;
+    }
+
+.hidden {
+    display: none;
+}

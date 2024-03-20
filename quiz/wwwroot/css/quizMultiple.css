@@ -211,6 +211,23 @@ body {
     animation-name: zoomIn;
     animation-duration: 0.4s;
 }
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed; /* or 'absolute' if 'fixed' doesn't fit your needs */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7); /* Optional: adds a slight overlay */
+    z-index: 1000; /* Ensures it's above other content */
+}
+
+    .loading-container i {
+        font-size: 3em; /* Adjust size as necessary */
+    }
+
 @keyframes zoomIn {
     from {
         transform: translate(-50%, -50%) scale(0)

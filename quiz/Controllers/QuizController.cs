@@ -10,6 +10,7 @@ using quiz.Models;
 
 namespace quiz.Controllers
 {
+    
     public class QuizController : Controller
     {
         private readonly QuizContext _context;
@@ -17,8 +18,14 @@ namespace quiz.Controllers
         {
             _context = context;
         }
-        
 
+        public ActionResult MultiplayerQuiz(int quizid, int multiplayer)
+        {
+
+            ViewBag.QuizId = quizid;
+
+            return View();
+        }
         public async Task<IActionResult> GetQuestions(int quizId, short level)
         {
             if (level < 1 || level > 3)
@@ -129,7 +136,7 @@ namespace quiz.Controllers
         {
             return View("~/Views/Score/AdminScore.cshtml");
         }
-        
+
         public IActionResult Index()
         {
             return View();
@@ -147,50 +154,100 @@ namespace quiz.Controllers
         {
             return View();
         }
-        public async Task<IActionResult> SaveQuizSession(int quizId, int score)
+        public async Task<IActionResult> SaveQuizSession(int quizId, int score, string userSession = "")
         {
-            // Fetch the userId from session or another state management mechanism
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null)
+            if (!string.IsNullOrEmpty(userSession))
             {
-                return Unauthorized();
-            }
+                // Handle multiplayer session case
+                using (var transaction = await _context.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        // Check if the quiz exists
+                        var quizExists = await _context.Quizzes.AnyAsync(q => q.QuizId == quizId);
+                        if (!quizExists)
+                        {
+                            return Json(new { ok = false, message = "Quiz does not exist." });
+                        }
 
-            // Creating a new QuizSession instance with the current time
-            var quizSession = new QuizSession
-            {
-                QuizSessionScore = score,
-                QuizSessionTime = DateTime.Now, // Use the current time when saving the session
-            };
+                        // Create or update the multiplayer session
+                        var session = await _context.MultiplayerTmpSession
+                            .FirstOrDefaultAsync(m => m.Username == userSession && m.QuizId == quizId);
 
-            _context.QuizSessions.Add(quizSession);
-            await _context.SaveChangesAsync();
+                        if (session == null)
+                        {
+                            // If session does not exist, create a new one
+                            session = new MultiplayerTmpSession
+                            {
+                                Username = userSession,
+                                QuizId = quizId,
+                                Score = score
+                            };
+                            await _context.MultiplayerTmpSession.AddAsync(session);
+                        }
+                        else
+                        {
+                            // If session exists, update the score
+                            session.Score = score;
+                        }
 
-            // Check if a QuizTracker with the same userId and quizId already exists
-            var existingTracker = await _context.QuizTrackers
-                .FirstOrDefaultAsync(qt => qt.UserQuizId == userId.Value && qt.QuizId == quizId);
-
-            if (existingTracker != null)
-            {
-                // If found, update the existing tracker entry
-                existingTracker.QuizSessionId = quizSession.QuizSessionId;
+                        await _context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        return Json(new { ok = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        Console.WriteLine(ex.ToString());
+                        return StatusCode(500, "An error occurred while processing your request.");
+                    }
+                }
             }
             else
             {
-                // If not found, create a new QuizTracker entry
-                var quizTracker = new QuizTracker
+                // Fetch the userId from session or another state management mechanism
+                var userId = HttpContext.Session.GetInt32("UserId");
+                if (userId == null)
                 {
-                    UserQuizId = userId.Value,
-                    QuizSessionId = quizSession.QuizSessionId,
-                    QuizId = quizId
+                    return Unauthorized();
+                }
+
+                // Creating a new QuizSession instance with the current time
+                var quizSession = new QuizSession
+                {
+                    QuizSessionScore = score,
+                    QuizSessionTime = DateTime.Now, // Use the current time when saving the session
                 };
 
-                _context.QuizTrackers.Add(quizTracker);
+                _context.QuizSessions.Add(quizSession);
+                await _context.SaveChangesAsync();
+
+                // Check if a QuizTracker with the same userId and quizId already exists
+                var existingTracker = await _context.QuizTrackers
+                    .FirstOrDefaultAsync(qt => qt.UserQuizId == userId.Value && qt.QuizId == quizId);
+
+                if (existingTracker != null)
+                {
+                    // If found, update the existing tracker entry
+                    existingTracker.QuizSessionId = quizSession.QuizSessionId;
+                }
+                else
+                {
+                    // If not found, create a new QuizTracker entry
+                    var quizTracker = new QuizTracker
+                    {
+                        UserQuizId = userId.Value,
+                        QuizSessionId = quizSession.QuizSessionId,
+                        QuizId = quizId
+                    };
+
+                    _context.QuizTrackers.Add(quizTracker);
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok();
             }
-
-            await _context.SaveChangesAsync();
-
-            return Ok(); 
         }
 
         public async Task<IActionResult> GetAdminScoreStats()
@@ -252,6 +309,115 @@ namespace quiz.Controllers
             return HttpContext.Session.GetInt32("UserId") ?? 0;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> CheckUsernameAvailability(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return Json(false);
+            }
+
+            try
+            {
+                // Ensuring the operation is as efficient as possible
+                var isUsernameTaken = await _context.MultiplayerTmpSession
+                                        .AnyAsync(m => EF.Functions.Like(m.Username, username));
+
+
+                // Return true if the username is NOT taken (i.e., available)
+                return Json(!isUsernameTaken);
+            }
+            catch (Exception ex)
+            {
+
+                // Optionally log the exception
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SubscribeQuizTmp(string username, int quizId)
+        {
+            if (string.IsNullOrWhiteSpace(username) || quizId <= 0)
+            {
+                return Json(new { ok = false, message = "Invalid username or quiz ID." });
+            }
+
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // Check if the quiz exists
+                    var quizExists = await _context.Quizzes.AnyAsync(q => q.QuizId == quizId);
+                    if (!quizExists)
+                    {
+                        return Json(new { ok = false, message = "Quiz does not exist." });
+                    }
+
+                    // Create a new session
+                    var newSession = new MultiplayerTmpSession
+                    {
+                        Username = username,
+                        QuizId = quizId,
+                        Score = 0
+                    };
+
+                    // Save the new session
+                    await _context.MultiplayerTmpSession.AddAsync(newSession);
+                    await _context.SaveChangesAsync();
+
+                    // Commit transaction
+                    await transaction.CommitAsync();
+
+                    return Json(new { ok = true });
+                }
+                catch (DbUpdateException ex)
+                {
+                    // Log the exception
+                    Console.WriteLine(ex.ToString());
+
+                    // This could be due to a variety of reasons, including duplicate usernames for the same quiz
+                    await transaction.RollbackAsync();
+                    return Json(new { ok = false, message = ex.ToString() });
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception
+                    Console.WriteLine(ex.ToString());
+
+                    await transaction.RollbackAsync();
+                    return StatusCode(500, ex.ToString());
+                }
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetQuizDates(int quizId)
+        {
+            try
+            {
+                var quizTimes = await _context.MultiPlayerQuiz
+                    .Where(q => q.QuizId == quizId)
+                    .Select(q => new { q.BeginDate, q.EndDate })
+                    .FirstOrDefaultAsync();
+
+                if (quizTimes == null)
+                {
+                    return NotFound("Quiz not found.");
+                }
+
+                return Json(new
+                {
+                    beginDate = quizTimes.BeginDate.ToString("o"), // ISO 8601 format
+                    endDate = quizTimes.EndDate.ToString("o")
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it accordingly
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
 
     }
 }

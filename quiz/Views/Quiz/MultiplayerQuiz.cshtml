@@ -1,0 +1,239 @@
+﻿﻿@{
+    ViewData["Title"] = "Multiple Quiz";
+}
+
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="~/css/quizMultiple-session.css" asp-append-version="true" />
+</head>
+<div id="container-fluid" class="container-fluid">
+    <div class="row">
+        <!-- Use Bootstrap's 'order' classes to control the stacking order on smaller screens -->
+        <div class="col-lg-4 col-md-6 order-2 order-md-1">
+            <div class="input-section">
+                <input type="text" class="form-control" id="userInput" placeholder="Enter username">
+            </div>
+            <div class="text-indicator mb-2">Indicator text here</div>
+            <button type="submit" class="btn btn-primary mb-2" id="submitButton">Submit</button>
+        </div>
+        <div class="col-lg-8 col-md-6 order-1 order-md-2">
+            <div id="spongeBobAnimation" class="spongebob-animation">
+                <div class="face">
+                    <div class="eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                    <div class="eyelash1"></div>
+                    <div class="eyelash2"></div>
+                    <div class="nose"></div>
+                    <div class="burger1"></div>
+                    <div class="burger2"></div>
+                    <div class="mouth"></div>
+                    <div class="mouth2"></div>
+                    <div class="patch1"></div>
+                    <div class="patch2"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="large-central-area mt-3">
+                    <div class="charging-line-container">
+                        <div class="charging-line"></div>
+                    </div>
+                    <!-- Content for the large central area goes here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="loadingContainer" class="loading-container" style="display:flex; justify-content:center; align-items:center; height:100%;">
+    <i class="fas fa-cog fa-spin" style="font-size: 3em;"></i>
+</div>
+<div id="errorContainer" class="alert alert-danger" role="alert" style="display:none;">
+    <p id="errorMessage"></p>
+</div>
+
+<div id="quizContainer" data-quiz-id="@ViewBag.QuizId" class="container" style="display:none;">
+    <h1 class="quiz-title">Multiplayer Session</h1>
+
+    <!-- <label for="level-selector">Choisir le niveau:</label>
+     <select id="level-selector" onchange="changeLevel()">
+         <option value="easy">Moyen</option>
+         <option value="hard">Difficile</option>
+      </select> -->
+
+    <section class="question-section">
+        <div class="question">
+            <h2 class="question-num" id="questionNum"></h2>
+            <p class="question-text" id="questionText"></p>
+        </div>
+        <div class="answer-item" id="options-container"></div>
+        <div class="action">
+
+
+            <button class="btn" id="next-btn" onclick="nextQuestion()">Next</button>
+        </div>
+    </section>
+
+    <section class="explanation-section">
+        <h2 class="section-title">Feedback</h2>
+        <p class="explanation-text" id="result"></p>
+    </section>
+
+    <section class="questions-nav-section">
+        <p class="question-context" id="questionContext"></p>
+        <div class="d-flex">
+            <ul class="question-nums-list" id="questionNumbersList"></ul>
+        </div>
+    </section>
+
+    <!-- Modal for displaying the score gauge -->
+    <div id="scoreModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h2>Your Score is: <span id="scoreValue">0</span> out of 100</h2>
+            <!-- Container for the D3 gauge -->
+            <div id="gaugeContainer" style="width: 200px; height: 200px; margin: auto;"></div>
+        </div>
+    </div>
+
+    <section class="timer-section">
+        <div class="timer">
+            <h2 class="timer-title" id="Timer-Title">Timer</h2>
+            <div class="timer-display" id="timer-display">00:00</div>
+        </div>
+    </section>
+
+</div>
+
+
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="~/js/quizMultiple_session.js" asp-append-version="true"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+        window.onload = function () {
+            document.querySelector('#container-fluid').addEventListener('mousemove', eyeball);
+
+            function eyeball(event) {
+                var eye = document.querySelectorAll('.eye');
+                eye.forEach(function (eye) {
+                    let x = (eye.getBoundingClientRect().left) +
+                        (eye.clientWidth / 2);
+                    let y = (eye.getBoundingClientRect().top) +
+                        (eye.clientHeight / 2);
+                    let radian = Math.atan2(event.pageX - x, event.pageY - y);
+                    let rot = (radian * (180 / Math.PI) *
+                        -1) + 270;
+                    eye.style.transform = "rotate(" + rot + "deg)";
+                });
+            }
+        }
+
+        $(document).ready(function () {
+            // Start with the submit button disabled
+            $('#submitButton').prop('disabled', true);
+
+            $('#userInput').on('keyup', function () {
+                var username = $(this).val().trim();
+
+                // Disable the button while checking the username availability
+                $('#submitButton').prop('disabled', true);
+
+                if (username.length === 0) {
+                    // No need to check if the username field is empty
+                    $('.text-indicator').html('').css('color', '');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/Quiz/CheckUsernameAvailability', // Assume this is the path to your action
+                    type: 'GET',
+                    data: { username: username },
+                    success: function (isAvailable) {
+                        if (isAvailable) {
+                            // Username is available, enable the submit button and show a success message
+                            $('.text-indicator').html('<i class="fa fa-check" aria-hidden="true"></i> Username is available').css('color', 'green');
+                            $('#submitButton').prop('disabled', false);
+                        } else {
+                            // Username is not available, keep the button disabled and show an error message
+                            $('.text-indicator').html('<i class="fa fa-times" aria-hidden="true"></i> Username is not available').css('color', 'red');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // On error, keep the button disabled and show an error message
+                        console.log(xhr.responseText);
+                        $('.text-indicator').html('Error checking username: ' + xhr.responseText).css('color', 'red');
+                    }
+                });
+            });
+
+            $('#submitButton').on('click', function (e) {
+                e.preventDefault(); // Prevent the default form submission
+
+                var username_ = $('#userInput').val().trim();
+                var quizId_ = parseInt(document.getElementById('quizContainer').getAttribute('data-quiz-id'), 10) || 1;
+                console.log(quizId_);
+
+                if (!username_ || !quizId_) {
+                    // Show error if username or quizId is missing
+                    $('.text-indicator').html('Username is required').css('color', 'red');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/Quiz/SubscribeQuizTmp',
+                    type: 'GET',
+                    data: {
+                        username: username_,
+                        quizId: quizId_
+                    },
+                    success: function (response) {
+                        if (response.ok) {
+                            // If the response is OK, hide the current container and show the quiz container
+                            $('#container-fluid').hide();
+                            $('#quizContainer').show();
+                            localStorage.setItem('userSessionTmp', username_);
+                        } else {
+                            // Show error message from the response
+                            $('.text-indicator').html(response.message || 'An error occurred').css('color', 'red');
+                        }
+                    },
+                    error: function (xhr) {
+                        // Expanded to directly show server response if available
+                        var errorMessage = 'Failed to subscribe to the quiz';
+                        if (xhr.responseText) {
+                            try {
+                                // Since your action might return a simple string in case of an error
+                                // Directly assigning it as the error message
+                                errorMessage = xhr.responseText;
+
+                                // If you were returning a JSON object with a message property in your 500 error,
+                                // You would parse the JSON and extract the message like this:
+                                // var responseJson = JSON.parse(xhr.responseText);
+                                // errorMessage = responseJson.message;
+                            } catch (e) {
+                                console.error('Error parsing the error response:', e);
+                            }
+                        }
+                        $('.text-indicator').html(errorMessage).css('color', 'red');
+                    }
+                });
+            });
+
+        });
+
+
+
+
+
+    </script>
+
+}

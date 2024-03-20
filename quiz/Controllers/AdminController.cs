@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using quiz.DAL; 
+using quiz.DAL;
 using quiz.Models;
 using System.Threading.Tasks;
 using System;
@@ -112,7 +112,8 @@ namespace quiz.Controllers
                 .ToListAsync();
 
             var multiplayerQuizzes = await _context.MultiPlayerQuiz
-                .Select(mq => new {
+                .Select(mq => new
+                {
                     mq.Quiz.QuizName,
                     mq.BeginDate,
                     mq.EndDate,
@@ -137,7 +138,7 @@ namespace quiz.Controllers
         {
             string scheme = Request.Scheme;
             string host = Request.Host.Value;
-            string path = Url.Action("MultiplayerQuiz", "Quiz", new { quizid = quizId, multiplayer = 1 });
+            string path = Url.Action("MultiplayerQuiz", "Quiz", new { quizid = quizId });
 
             string fullUrl = $"{scheme}://{host}{path}";
             string encodedQuizUrl = Uri.EscapeDataString(fullUrl);
@@ -169,16 +170,32 @@ namespace quiz.Controllers
                 {
                     imgUrl = jsonResponse.data.link;
                     // Add to database here
-                    var newQuiz = new MultiPlayerQuiz
-                    {
-                        QuizId = quizId,
-                        BeginDate = beginDateTime,
-                        EndDate = endDateTime,
-                        QrLink = imgUrl,
-                        SiteLink = fullUrl // Assuming this is the site link you want to save
-                    };
+                    var existingQuiz = await _context.MultiPlayerQuiz
+                                        .FirstOrDefaultAsync(q => q.QuizId == quizId);
 
-                    _context.MultiPlayerQuiz.Add(newQuiz);
+                    if (existingQuiz != null)
+                    {
+                        // If an existing quiz is found, update its properties
+                        existingQuiz.QuizId = quizId;
+                        existingQuiz.BeginDate = beginDateTime;
+                        existingQuiz.EndDate = endDateTime;
+                        existingQuiz.QrLink = imgUrl; // Assuming imgUrl is the image URL you want to save
+                        existingQuiz.SiteLink = fullUrl; // Assuming this is the site link you want to save
+                    }
+                    else
+                    {
+                        // If no existing quiz is found, create a new instance and add it to the database
+                        var newQuiz = new MultiPlayerQuiz
+                        {
+                            QuizId = quizId,
+                            BeginDate = beginDateTime,
+                            EndDate = endDateTime,
+                            QrLink = imgUrl, // Assuming imgUrl is the image URL you want to save
+                            SiteLink = fullUrl // Assuming this is the site link you want to save
+                        };
+
+                        _context.MultiPlayerQuiz.Add(newQuiz);
+                    }
                     await _context.SaveChangesAsync();
 
                     return Json(new { Url = imgUrl });

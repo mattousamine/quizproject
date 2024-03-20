@@ -11,8 +11,8 @@ const resultDiv = document.getElementById('result');
 
 let timerInterval;
 
-const startDate = new Date('2024-03-19T00:36:00'); 
-const endDate = new Date('2024-03-19T00:50:00'); 
+const startDate = new Date('2024-03-20T00:00:00'); 
+const endDate = new Date('2024-03-20T00:05:00'); 
 
 function startTimer() {
     timerInterval = setInterval(updateTimer, 1000);
@@ -51,6 +51,7 @@ function updateTimer() {
     if (currentDate >= endDate && currentDate > startDate) {
         clearInterval(timerInterval);
         calculateAndDisplayScore();
+        return;
     }
 
     const displayDays = Math.floor(timeDifferenceSeconds / (60 * 60 * 24));
@@ -66,12 +67,12 @@ function updateTimer() {
     if (displayHours > 0 || displayDays > 0) {
         display += `${displayHours}h `;
     }
-    display += `${displayMinutes}:${displaySeconds}`;
+    display += `${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
 
     const timerDisplay = document.getElementById('timer-display');
     const timerTitle = document.getElementById('Timer-Title');
     if (timerDisplay) {
-        if (timeDifferenceSeconds <= 30) {
+        if (timeDifferenceSeconds <= 59) {
             timerDisplay.style.color = 'red';
         } else {
             timerDisplay.style.color = '';

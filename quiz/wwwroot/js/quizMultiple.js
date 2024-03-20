@@ -10,6 +10,7 @@ const levelSelector = document.getElementById('level-selector');
 const resultDiv = document.getElementById('result');
 
 let timerInterval;
+let answerSelected = false;
 
 const startDate = new Date('2024-03-20T00:00:00'); 
 const endDate = new Date('2024-03-20T00:05:00'); 
@@ -184,9 +185,15 @@ function showQuestion() {
     } else {
         levelSelector.disabled = false;
     }
+    answerSelected = false;
 }
 
 function checkAnswer(selectedOption) {
+    if (answerSelected) {
+        return;
+    }
+    answerSelected = true;
+
     const currentQuizData = quizData[currentLevel][currentQuestion];
     const correctAnswer = currentQuizData.correctAnswer;
 
@@ -214,6 +221,7 @@ function checkAnswer(selectedOption) {
 }
 
 function nextQuestion() {
+    answerSelected = false;
     if (currentQuestion < quizData[currentLevel].length - 1) {
         currentQuestion++;
         showQuestion();
@@ -224,6 +232,7 @@ function nextQuestion() {
         optionDivs.forEach(div => {
             div.disabled = true;
         });
+        answerSelected = false;
         nextButton.disabled = true;
     }
 }

@@ -1,30 +1,39 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using quiz.DAL;
 using quiz.Models;
+using PdfSharp.Drawing;
+using PdfSharp.Pdf;
+using System.Drawing;
+using System.Xml.Linq;
+using PdfSharp.Drawing.Layout;
+
 
 namespace quiz.Controllers
 {
     public class UserQuizzesController : Controller
     {
         private readonly QuizContext _context;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public UserQuizzesController(QuizContext context)
+        public UserQuizzesController(QuizContext context, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         // GET: UserQuizzes
         public async Task<IActionResult> Index()
         {
-              return _context.UserQuizzes != null ? 
-                          View(await _context.UserQuizzes.ToListAsync()) :
-                          Problem("Entity set 'QuizContext.UserQuizzes'  is null.");
+            return _context.UserQuizzes != null ?
+                      View(await _context.UserQuizzes.ToListAsync()) :
+                      Problem("Entity set 'QuizContext.UserQuizzes'  is null.");
         }
 
         // GET: UserQuizzes/Details/5
@@ -52,8 +61,6 @@ namespace quiz.Controllers
         }
 
         // POST: UserQuizzes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("UserQuizId,UserQuizUsername,UserQuizPassword,UserQuizEmail,UserQuizIsAdmin,UserQuizIsActive")] UserQuiz userQuiz)
@@ -84,8 +91,6 @@ namespace quiz.Controllers
         }
 
         // POST: UserQuizzes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("UserQuizId,UserQuizUsername,UserQuizPassword,UserQuizEmail,UserQuizIsAdmin,UserQuizIsActive")] UserQuiz userQuiz)
@@ -150,14 +155,14 @@ namespace quiz.Controllers
             {
                 _context.UserQuizzes.Remove(userQuiz);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool UserQuizExists(int id)
         {
-          return (_context.UserQuizzes?.Any(e => e.UserQuizId == id)).GetValueOrDefault();
+            return (_context.UserQuizzes?.Any(e => e.UserQuizId == id)).GetValueOrDefault();
         }
 
         public async Task<IActionResult> GetAllQuizzes()
@@ -173,7 +178,6 @@ namespace quiz.Controllers
 
         public IActionResult ConnectShow()
         {
-
             return View("~/Views/MultiUser/ConnectNoRegisterUser.cshtml");
         }
 
@@ -207,7 +211,6 @@ namespace quiz.Controllers
 
         public IActionResult verifyUsername(string username)
         {
-
             var existingUser = _context.UserQuizzes.FirstOrDefault(u => u.UserQuizUsername == username);
             return Json(new { exists = existingUser });
         }
@@ -217,5 +220,48 @@ namespace quiz.Controllers
             var existingUser = _context.MultiUserSession.FirstOrDefault(u => u.Username == username);
             return Json(new { exists = existingUser });
         }
+
+        // Méthode pour exporter les résultats d'un quiz en PDF
+
+
+        public async Task<IActionResult> ExportQuizResultsToPdf(int quizId)
+        {
+
+            var sessions = await _context.MultiUserSession.Where(s => s.QuizId == quizId).ToListAsync();
+            var userInfos = new List<(string Name, int Score)>();
+
+            foreach (var session in sessions)
+            {
+                var user = await _context.UserQuizzes.FirstOrDefaultAsync(u => u.UserQuizId == session.UserId);
+                if (user != null)
+                {
+                    userInfos.Add((user.UserQuizUsername, user.UserQuizScore));
+                }
+            }
+
+            var pdf = new PdfDocument();
+            var page = pdf.AddPage();
+            var gfx = XGraphics.FromPdfPage(page);
+
+            XFont font = new XFont("Verdana", 12, PdfSharp.Fonts.XFontStyle.Regular);
+            XTextFormatter tf = new XTextFormatter(gfx);
+            tf.DrawString("Résultats du Quiz", font, XBrushes.Black,
+                new XRect(10, 10, page.Width, page.Height), XStringFormats.TopLeft);
+
+            int yPos = 30;
+            foreach (var userInfo in userInfos)
+            {
+                tf.DrawString($"Nom: {userInfo.Name}, Score: {userInfo.Score.ToString()}", font, XBrushes.Black,
+                    new XRect(10, yPos, page.Width, page.Height), XStringFormats.TopLeft);
+                yPos += 20;
+            }
+
+            var wwwrootPath = _hostingEnvironment.WebRootPath;
+            var pdfFilename = Path.Combine(wwwrootPath, "uploads", "quiz_results.pdf");
+            pdf.Save(pdfFilename);
+
+            return File(pdfFilename, "application/pdf", "quiz_results.pdf");
+        }
+
     }
 }

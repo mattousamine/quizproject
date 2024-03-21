@@ -22,5 +22,7 @@ namespace quiz.Models
 
         [Column("end_time")]
         public DateTime? EndTime { get; set; }
+        public object SessionId { get; internal set; }
+        public int QuizId { get; internal set; }
     }
 }

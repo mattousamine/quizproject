@@ -100,8 +100,8 @@
                                         <a class="nav-link" asp-controller="Quiz" asp-action="Simple">Simple</a>
                                         <a class="nav-link" asp-controller="Quiz" asp-action="Multiple">Multiple</a>
                                         <a class="nav-link" asp-controller="Quiz" asp-action="Callquiz">Test Json Call</a>
+                                        @* <a class="nav-link" asp-controller="Quiz" asp-action="ConnectShow">No register login</a> *@
                                         <a class="nav-link" asp-controller="UserQuizzes" asp-action="ConnectShow">No register login</a>
-  
                                     </nav>
                                 </div>
 
@@ -191,8 +191,6 @@
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    
-
 
     <!-- <script src="~/js/datatables-simple-layout.js"></script>-->
     @await RenderSectionAsync("Scripts", required: false)

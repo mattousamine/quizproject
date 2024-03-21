@@ -22,9 +22,9 @@ namespace quiz.Controllers
         // GET: UserQuizzes
         public async Task<IActionResult> Index()
         {
-              return _context.UserQuizzes != null ? 
-                          View(await _context.UserQuizzes.ToListAsync()) :
-                          Problem("Entity set 'QuizContext.UserQuizzes'  is null.");
+            return _context.UserQuizzes != null ?
+                        View(await _context.UserQuizzes.ToListAsync()) :
+                        Problem("Entity set 'QuizContext.UserQuizzes'  is null.");
         }
 
         // GET: UserQuizzes/Details/5
@@ -150,14 +150,14 @@ namespace quiz.Controllers
             {
                 _context.UserQuizzes.Remove(userQuiz);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool UserQuizExists(int id)
         {
-          return (_context.UserQuizzes?.Any(e => e.UserQuizId == id)).GetValueOrDefault();
+            return (_context.UserQuizzes?.Any(e => e.UserQuizId == id)).GetValueOrDefault();
         }
 
         public async Task<IActionResult> GetAllQuizzes()
@@ -170,7 +170,7 @@ namespace quiz.Controllers
             var quizzes = await _context.UserQuizzes.ToListAsync();
             return Json(quizzes);
         }
-
+        //Fonctionalite de connexion d'un user sans compte a la session multijoueur
         public IActionResult ConnectShow()
         {
 
@@ -181,28 +181,27 @@ namespace quiz.Controllers
         public IActionResult ConnectShowed()
         {
             var username = HttpContext.Request.Form["username"].ToString();
-            if (string.IsNullOrWhiteSpace(username))
+            var session = new MultiUserSession
             {
-                TempData["ErrorMessage"] = "Veuillez saisir un non d'utilisateur.";
-            }
-            else
+                Username = username,
+                StartTime = DateTime.Now,
+                EndTime = null
+            };
+            try
             {
-                TempData["SuccessMessage"] = $"Hello,{username}";
-                var existingUser = _context.UserQuizzes.FirstOrDefault(u => u.UserQuizUsername == username);
-                if (existingUser != null)
-                {
-                    TempData["ErrorMessage"] = "Ce nom d'utilisateur existe déjà.";
-                    TempData["SuccessMessage"] = "";
-                    return View("~/Views/MultiUser/ConnectNoRegisterUser.cshtml");
-                }
-                else
-                {
-                    TempData["SuccessMessage"] = $"Bonjour, {username}";
-                    TempData["ErrorMessage"] = "";
-                    return View("~/Views/MultiUser/ConnectNoRegisterUser.cshtml");
-                }
+                _context.MultiUserSession.Add(session);
+                _context.SaveChanges();
+                TempData["SuccessMessage"] = $"Bonjour, {username}";
+
+                return View("~/Views/MultiUser/ReadyToPlay.cshtml");
             }
-            return View("~/Views/MultiUser/ConnectNoRegisterUser.cshtml");
+            catch (DbUpdateException ex)
+            {
+                TempData["ErrorMessage"] = "Une erreur est survenue lors de l'insertion du joueur dans le jeu.";
+
+                return View("~/Views/MultiUser/ConnectNoRegisterUser.cshtml");
+            }
+            // return View("~/Views/MultiUser/ConnectNoRegisterUser.cshtml");
         }
 
         public IActionResult verifyUsername(string username)
@@ -217,5 +216,13 @@ namespace quiz.Controllers
             var existingUser = _context.MultiUserSession.FirstOrDefault(u => u.Username == username);
             return Json(new { exists = existingUser });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllUserSessions()
+        {
+            var userSessions = await _context.MultiUserSession.ToListAsync();
+            return Json(userSessions);
+        }
+
     }
 }

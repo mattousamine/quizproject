@@ -11,9 +11,6 @@ namespace quiz.Models
         [Column("session_id")]
         public int SessionDBId { get; set; }
 
-        [Column("user_id")]
-        public string UserId { get; set; }
-
         [Column("username")]
         public string Username { get; set; }
 

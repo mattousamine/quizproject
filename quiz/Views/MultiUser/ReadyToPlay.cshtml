@@ -1,3 +1,84 @@
-﻿
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des utilisateur pret a jouer</title>
+    <style>
+        body {
+            background-image: url('https://static.vecteezy.com/system/resources/thumbnails/006/691/887/small/yellow-question-mark-background-with-text-space-quiz-symbol-vector.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: black;
+            font-family: Georgia, serif;
+            font-size: 20px;
+            padding: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
 
+        li {
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
 
+        #userList {
+            width: 50%; 
+            float: left; 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin-top: 20px; 
+        }
+        img {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <p>@TempData["SuccessMessage"]</p>
+    }
+    
+    <div id="userList"></div>
+
+    @* Affichage de la liste des etudiant dans la table multiusersession, la liste doit se rafraichi au fur et a mesure que les utilisateur sont  ajoute dans la base de donnee
+    La liste des utilisater doit etre tres joliement presente avec des puce et de manierer ordonne du premier au dernier.
+    *@
+
+    @section Scripts {
+        <script>
+            $(document).ready(function () {
+                $.ajax({
+                    url: '/UserQuizzes/GetAllUserSessions',
+                    type: 'GET',
+                    success: function (data) {
+                        if (data.length > 0) {
+                            var userListHtml = '<h3>Liste des utilisateurs prêts à jouer :</h3><ul>';
+                            data.forEach(function (userSession) {
+                                userListHtml += '<li>' + userSession.username + '</li>';
+                            });
+                            userListHtml += '</ul>';
+                            $('#userList').html(userListHtml);
+                        } else {
+                            $('#userList').html('<p>Aucun utilisateur prêt à jouer n\'a été trouvé.</p>');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Une erreur est survenue lors de la récupération des données : " + error);
+                        $('#userList').html('<p>Une erreur est survenue lors de la récupération des données.</p>');
+                    }
+                });
+            });
+        </script>
+    }
+</body>
+</html>

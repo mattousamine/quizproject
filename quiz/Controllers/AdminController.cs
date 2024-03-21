@@ -114,6 +114,7 @@ namespace quiz.Controllers
             var multiplayerQuizzes = await _context.MultiPlayerQuiz
                 .Select(mq => new
                 {
+                    mq.Quiz.QuizId,
                     mq.Quiz.QuizName,
                     mq.BeginDate,
                     mq.EndDate,
@@ -226,6 +227,18 @@ namespace quiz.Controllers
                 throw new Exception("Failed to generate QR code");
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetStatsSession(int quizId)
+        {
+            var stats = await _context.MultiplayerTmpSession
+                                      .Where(session => session.QuizId == quizId)
+                                      .Select(session => new { session.Username, session.Score })
+                                      .ToListAsync();
+
+            return Json(stats);
+        }
+
 
 
 

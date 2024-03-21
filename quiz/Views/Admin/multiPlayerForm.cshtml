@@ -5,10 +5,11 @@
 <style>
     .custom-modal-size {
         max-width: none;
-        width: 600px; 
+        width: 600px;
     }
 
 </style>
+
 <div class="container mt-5">
     <h2 class="text-center mb-4">Select a Quiz for Multiplayer</h2>
 
@@ -28,7 +29,7 @@
             </select>
 
         </div>
-        
+
 
         <div class="form-group">
             <label for="beginDateTime">Begin Date and Time:</label>
@@ -110,6 +111,7 @@
                 <th>End Date</th>
                 <th>QR Link</th>
                 <th>Site Link</th>
+                <th>Result</th>
             </tr>
         </thead>
         <tbody>
@@ -123,12 +125,31 @@
                     <td>
                         <a href="#" class="site-link" data-toggle="modal" data-target="#siteLinkModal" data-site="@quiz.SiteLink">Copy Link</a>
                     </td>
+                    <td>
+                        <button onclick="resultat(@quiz.QuizId)" class="btn btn-primary btn-sm">Result</button>
+                    </td>
                 </tr>
             }
 
         </tbody>
     </table>
 </div>
+<div class="modal fade" id="resultsModal" tabindex="-1" role="dialog" aria-labelledby="resultsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resultsModalLabel">Quiz Results</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <canvas id="resultsChart" width="100%" height="50"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 <input type="text" id="hiddenInput" style="position: absolute; left: -9999px;">
 
 
@@ -136,6 +157,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+
+
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
     <script>
         $(document).ready(function () {
@@ -271,6 +297,86 @@
 
             window.copyToClipboard = copyToClipboard; // Make it available globally
         });
+
+        function resultat(quizId) {
+            $.ajax({
+                url: '/Admin/GetStatsSession',
+                type: 'GET',
+                data: { quizId: quizId },
+                success: function (response) {
+                    var usernames = response.map(user => user.username);
+                    var scores = response.map(user => user.score);
+
+                    var ctx = document.getElementById("resultsChart").getContext('2d');
+
+                    // Check if the chart instance exists
+                    if (window.myResultChart) {
+                        window.myResultChart.destroy(); // Destroy the old chart instance before creating a new one
+                    }
+
+                    // Create a new chart instance
+                    window.myResultChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: usernames,
+                            datasets: [{
+                                label: "Score",
+                                backgroundColor: "rgba(2,117,216,1)",
+                                borderColor: "rgba(2,117,216,1)",
+                                data: scores,
+                            }],
+                        },
+                        options: {
+                            scales: {
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        autoSkip: false,
+                                        maxRotation: 45, // Slightly slanted labels
+                                        minRotation: 45,
+                                        font: {
+                                            size: 10 // Smaller font size to fit more labels
+                                        }
+                                    }
+                                },
+                                y: {
+                                    ticks: {
+                                        beginAtZero: true,
+                                        max: 100 // Assuming scores are out of 100
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        title: function (tooltipItem) {
+                                            // Custom tooltip title to display the username
+                                            return usernames[tooltipItem[0].dataIndex];
+                                        }
+                                    }
+                                }
+                            },
+                            // Enable responsiveness to expand in modal properly
+                            responsive: true,
+                            maintainAspectRatio: false // Allow stretching in the modal
+                        }
+                    });
+
+                    // Show the modal
+                    $('#resultsModal').modal('show');
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching stats: ", error);
+                }
+            });
+        }
+
+
 
     </script>
 }

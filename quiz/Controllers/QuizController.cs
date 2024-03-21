@@ -419,5 +419,18 @@ namespace quiz.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetUsernames(int quizId)
+        {
+            var usernames = await _context.MultiplayerTmpSession
+                .Where(q => q.QuizId == quizId)
+                .Select(m => m.Username)
+                .Distinct()
+                .ToListAsync();
+
+            return Json(usernames);
+        }
+
+
     }
 }

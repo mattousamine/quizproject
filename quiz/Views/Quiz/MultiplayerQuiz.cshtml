@@ -7,17 +7,30 @@
     <title>@ViewData["Title"]</title>
 
     <link rel="stylesheet" href="~/css/quizMultiple-session.css" asp-append-version="true" />
+
 </head>
 <div id="container-fluid" class="container-fluid">
     <div class="row">
-        <!-- Use Bootstrap's 'order' classes to control the stacking order on smaller screens -->
         <div class="col-lg-4 col-md-6 order-2 order-md-1">
             <div class="input-section">
                 <input type="text" class="form-control" id="userInput" placeholder="Enter username">
             </div>
-            <div class="text-indicator mb-2">Indicator text here</div>
+            <div class="text-indicator mb-2"></div>
             <button type="submit" class="btn btn-primary mb-2" id="submitButton">Submit</button>
         </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="large-central-area mt-3">
+                    <div class="charging-line-container">
+                        <div class="charging-line"></div>
+                        <div class="user-container"></div>
+                    </div>
+                    <!-- Content for the large central area goes here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Use Bootstrap's 'order' classes to control the stacking order on smaller screens -->
         <div class="col-lg-8 col-md-6 order-1 order-md-2">
             <div id="spongeBobAnimation" class="spongebob-animation">
                 <div class="face">
@@ -37,16 +50,9 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="large-central-area mt-3">
-                    <div class="charging-line-container">
-                        <div class="charging-line"></div>
-                    </div>
-                    <!-- Content for the large central area goes here -->
-                </div>
-            </div>
-        </div>
+        
+        
+       
     </div>
 </div>
 
@@ -119,6 +125,9 @@
     <script src="~/js/quizMultiple_session.js" asp-append-version="true"></script>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script>
+        var fetchUsernamesIntervalID;
+
+       
         window.onload = function () {
             document.querySelector('#container-fluid').addEventListener('mousemove', eyeball);
 
@@ -160,11 +169,11 @@
                     success: function (isAvailable) {
                         if (isAvailable) {
                             // Username is available, enable the submit button and show a success message
-                            $('.text-indicator').html('<i class="fa fa-check" aria-hidden="true"></i> Username is available').css('color', 'green');
+                            $('.text-indicator').html('<i class="fa fa-check" aria-hidden="true"></i> available').css('color', 'green');
                             $('#submitButton').prop('disabled', false);
                         } else {
                             // Username is not available, keep the button disabled and show an error message
-                            $('.text-indicator').html('<i class="fa fa-times" aria-hidden="true"></i> Username is not available').css('color', 'red');
+                            $('.text-indicator').html('<i class="fa fa-times" aria-hidden="true"></i> not available').css('color', 'red');
                         }
                     },
                     error: function (xhr, status, error) {
@@ -180,7 +189,7 @@
 
                 var username_ = $('#userInput').val().trim();
                 var quizId_ = parseInt(document.getElementById('quizContainer').getAttribute('data-quiz-id'), 10) || 1;
-                console.log(quizId_);
+                //console.log(quizId_);
 
                 if (!username_ || !quizId_) {
                     // Show error if username or quizId is missing
@@ -201,6 +210,9 @@
                             $('#container-fluid').hide();
                             $('#quizContainer').show();
                             localStorage.setItem('userSessionTmp', username_);
+                            if (fetchUsernamesIntervalID) {
+                                clearInterval(fetchUsernamesIntervalID);
+                            }
                         } else {
                             // Show error message from the response
                             $('.text-indicator').html(response.message || 'An error occurred').css('color', 'red');
@@ -228,7 +240,60 @@
                 });
             });
 
+            fetchUsernamesIntervalID = setInterval(fetchUsernames, 7000);
+
         });
+        function generateAvatarUrl(username) {
+            // Example using DiceBear Avatars with the 'avataaars' style.
+            // Replace 'avataaars' with another style if preferred.
+            return `https://api.dicebear.com/8.x/bottts/svg?seed=${encodeURIComponent(username)}.svg`;
+
+        }
+
+
+        function fetchUsernames() {
+            var quizId_ = parseInt(document.getElementById('quizContainer').getAttribute('data-quiz-id'), 10) || 1;
+            $.ajax({
+                url: '/Quiz/GetUsernames',
+                type: 'GET',
+                data: {
+                    quizId: quizId_
+                },
+                success: function (response) {
+                    var currentUsers = $('.user-container .user span').map(function () {
+                        return $(this).text().replace(' joined!', '').trim();
+                    }).get();
+
+                    response.forEach(function (username) {
+                        if (!currentUsers.includes(username)) {
+                            var avatarUrl = generateAvatarUrl(username);
+                            var newUserLine = $('<div>', { 'class': 'user animated fadeIn' })
+                                .append($('<img>', { 'src': avatarUrl, 'class': 'avatar' })) // Add avatar if needed
+                                .append($('<span>').text(username + ' joined!').css('color', 'blue')); // Username text
+
+                            $('.user-container').prepend(newUserLine);
+
+                            setTimeout(function () {
+                                newUserLine.find('span').text(username).removeAttr('style');
+                            }, 2000);
+                        }
+                    });
+
+                    // // Remove users that are no longer present
+                    // $('.charging-line-container .user').each(function () {
+                    //     var userDiv = $(this);
+                    //     var username = userDiv.find('span').text().trim();
+                    //     if (!response.includes(username)) {
+                    //         userDiv.remove(); // Or use an animation class to fade out
+                    //     }
+                    // });
+                },
+                error: function (error) {
+                    console.error('Error fetching usernames:', error);
+                }
+            });
+        }
+
 
 
 

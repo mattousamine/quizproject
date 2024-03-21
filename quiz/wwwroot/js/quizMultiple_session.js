@@ -10,6 +10,7 @@ const levelSelector = document.getElementById('level-selector');
 const resultDiv = document.getElementById('result');
 
 let timerInterval;
+let answerSelected = false;
 
 var startDate = new Date('2024-03-20T17:10:00'); 
 var endDate = new Date('2024-03-20T17:15:00'); 
@@ -26,6 +27,7 @@ function updateTimer() {
     let timerLabel = ''; 
 
     if (currentDate < startDate) {
+        
         timeDifferenceSeconds = Math.floor((startDate.getTime() - currentDate.getTime()) / 1000);
         timerLabel = 'Starts in';
 
@@ -84,14 +86,7 @@ function updateTimer() {
 }
 
 
-const currentDate = new Date();
-if (currentDate >= startDate && currentDate <= endDate) {
-    startTimer();
-} else if (currentDate < startDate) {
-    startTimer();
-} else {
-    document.getElementById('timer-display').innerText = "Unlimited Time";
-}
+
 
 
 
@@ -189,9 +184,14 @@ function showQuestion() {
         }
         
     }
+    answerSelected = false;
 }
 
 function checkAnswer(selectedOption) {
+    if (answerSelected) {
+        return;
+    }
+    answerSelected = true;
     const currentQuizData = quizData[currentLevel][currentQuestion];
     const correctAnswer = currentQuizData.correctAnswer;
 
@@ -219,6 +219,7 @@ function checkAnswer(selectedOption) {
 }
 
 function nextQuestion() {
+    answerSelected = false;
     if (currentQuestion < quizData[currentLevel].length - 1) {
         currentQuestion++;
         showQuestion();
@@ -229,6 +230,7 @@ function nextQuestion() {
         optionDivs.forEach(div => {
             div.disabled = true;
         });
+        answerSelected = false;
         nextButton.disabled = true;
     }
 }
@@ -385,10 +387,16 @@ $(document).ready(function () {
         type: 'GET',
         data: { quizId: quizId },
         success: function (response) {
-            console.log('Quiz Start Date:', response.beginDate);
-            console.log('Quiz End Date:', response.endDate);
             startDate = new Date(response.beginDate);
             endDate = new Date(response.endDate); 
+            const currentDate = new Date();
+            if (currentDate >= startDate && currentDate <= endDate) {
+                startTimer();
+            } else if (currentDate < startDate) {
+                startTimer();
+            } else {
+                document.getElementById('timer-display').innerText = "Unlimited Time";
+            }
             fetchQuizDataAndShowQuestion();
         },
         error: function (xhr, status, error) {

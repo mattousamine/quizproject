@@ -42,24 +42,26 @@
         <!-- Navbar-->
         @if (isLoggedIn)
         {
-        <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    @if (isAdmin)
-                    {
+            <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        @if (isAdmin)
+                        {
                             <li><a class="dropdown-item" asp-controller="Admin" asp-action="AdminPanel">Admin Panel</a></li>
                             <li><a class="dropdown-item" asp-controller="Quiz" asp-action="ShowAdminScore">Score stats</a></li>
-                    }else{
+                        }
+                        else
+                        {
                             <li><a class="dropdown-item" asp-controller="Quiz" asp-action="ShowUserScore">My score</a></li>
-                    }
-                        
-                    <li><hr class="dropdown-divider" /></li>
-                    <li><a class="dropdown-item" asp-controller="Authentication" asp-action="Logout">Logout</a></li>
+                        }
 
-                </ul>
-            </li>
-        </ul>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li><a class="dropdown-item" asp-controller="Authentication" asp-action="Logout">Logout</a></li>
+
+                    </ul>
+                </li>
+            </ul>
         }
 
     </nav>
@@ -85,53 +87,56 @@
                                 <a class="nav-link" href="#">Math Quizs</a>
                             </nav>
                         </div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
-                            <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
-                            Pages
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse" id="collapsePages" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
-                                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseError" aria-expanded="false" aria-controls="pagesCollapseError">
-                                    Quiz Demo
-                                    <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                                </a>
-                                <div class="collapse" id="pagesCollapseError" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
-                                    <nav class="sb-sidenav-menu-nested nav">
-                                        <a class="nav-link" asp-controller="Quiz" asp-action="Simple">Simple</a>
-                                        <a class="nav-link" asp-controller="Quiz" asp-action="Multiple">Multiple</a>
-                                        <a class="nav-link" asp-controller="Quiz" asp-action="Callquiz">Test Json Call</a>
-  
-                                    </nav>
-                                </div>
+                        @if (isAdmin)
+                        {
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
+                                <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
+                                Pages
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapsePages" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
+                                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseError" aria-expanded="false" aria-controls="pagesCollapseError">
+                                        Quiz Demo
+                                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                                    </a>
+                                    <div class="collapse" id="pagesCollapseError" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
+                                        <nav class="sb-sidenav-menu-nested nav">
+                                            <a class="nav-link" asp-controller="Quiz" asp-action="Simple">Simple</a>
+                                            <a class="nav-link" asp-controller="Quiz" asp-action="Multiple">Multiple</a>
+                                            <a class="nav-link" asp-controller="Quiz" asp-action="Callquiz">Test Json Call</a>
 
-                                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseExcelImporter" aria-expanded="false" aria-controls="pagesCollapseError">
-                                    Excel importer
-                                    <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                                </a>
-                                <div class="collapse" id="pagesCollapseExcelImporter" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
-                                    <nav class="sb-sidenav-menu-nested nav">
-                                        <a class="nav-link" asp-controller="QuizImporter" asp-action="Index">Import</a>
-                                        <a class="nav-link" asp-controller="Admin" asp-action="GetAllCategoriesWithDetails">show imported</a>
+                                        </nav>
+                                    </div>
 
-                                    </nav>
-                                </div>
-                                
-                                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">
-                                    Authentication
-                                    <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                                </a>
-                                <div class="collapse" id="pagesCollapseAuth" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
-                                    <nav class="sb-sidenav-menu-nested nav">
-                                        <a class="nav-link" href="@Url.Action("Index", "UserQuizzes")">CRUD USER</a>
-                                        <a class="nav-link" href="@Url.Action("Login", "Home")">Login</a>
-                                        <a class="nav-link" href="@Url.Action("Registre", "Home")">Register</a>
-                                        <a class="nav-link" href="@Url.Action("Password", "Home")">Forgot Password</a>
-                                    </nav>
-                                </div>
-                                
-                            </nav>
-                        </div>
+                                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseExcelImporter" aria-expanded="false" aria-controls="pagesCollapseError">
+                                        Excel importer
+                                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                                    </a>
+                                    <div class="collapse" id="pagesCollapseExcelImporter" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
+                                        <nav class="sb-sidenav-menu-nested nav">
+                                            <a class="nav-link" asp-controller="QuizImporter" asp-action="Index">Import</a>
+                                            <a class="nav-link" asp-controller="Admin" asp-action="GetAllCategoriesWithDetails">show imported</a>
+
+                                        </nav>
+                                    </div>
+
+                                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">
+                                        Authentication
+                                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                                    </a>
+                                    <div class="collapse" id="pagesCollapseAuth" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
+                                        <nav class="sb-sidenav-menu-nested nav">
+                                            <a class="nav-link" href="@Url.Action("Index", "UserQuizzes")">CRUD USER</a>
+                                            <a class="nav-link" href="@Url.Action("Login", "Home")">Login</a>
+                                            <a class="nav-link" href="@Url.Action("Registre", "Home")">Register</a>
+                                            <a class="nav-link" href="@Url.Action("Password", "Home")">Forgot Password</a>
+                                        </nav>
+                                    </div>
+
+                                </nav>
+                            </div>
+                        }
                         <div class="sb-sidenav-menu-heading">Games</div>
                         <a class="nav-link" href="#">
                             <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
@@ -144,22 +149,22 @@
                     </div>
                 </div>
                 <div class="sb-sidenav-footer">
-                    
+
                     @if (userRole == "Admin")
                     {
-                    <div class="small">Logged in as:</div>
-                    <p>Admin</p>
+                        <div class="small">Logged in as:</div>
+                        <p>Admin</p>
                     }
                     else if (userRole == "User")
                     {
-                    <div class="small">Logged in as:</div>
-                    <p>User</p>
+                        <div class="small">Logged in as:</div>
+                        <p>User</p>
                     }
                     else
                     {
-                    <p>Welcome, Visitor!</p>
+                        <p>Welcome, Visitor!</p>
                     }
-                    
+
                 </div>
             </nav>
         </div>
@@ -191,7 +196,7 @@
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    
+
 
 
     <!-- <script src="~/js/datatables-simple-layout.js"></script>-->

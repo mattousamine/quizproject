@@ -8,6 +8,35 @@ body {
     background: #3586ff;
     font-family: 'Font1', sans-serif;
 }
+.user {
+    font-style: italic;
+    font-weight: bold;
+    font-size: medium;
+    /* Add your beautiful font */
+}
+
+    .user .avatar {
+        width: 50px; /* Avatar size */
+        height: 50px;
+        border-radius: 50%; /* Circular avatar */
+        margin-right: 10px;
+    }
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.animated.fadeIn {
+    animation: fadeIn 1s;
+}
+
 
 #spongeBobAnimation .face {
     position: relative;
@@ -365,17 +394,29 @@ body {
         left: -250px;
     }
 
-#spongeBobAnimation.spongebob-animation {
+#spongeBobAnimation, .spongebob-animation {
     position: absolute;
-    top: 0%;
-    left: 60%;
-    transform: translateX(0%) scale(0.2);
-    transform-origin: top center;
+    right: 0; /* Stick to the right side of the screen */
+    top: 50%; /* Start at the vertical middle of the screen */
+    transform: translateY(-50%) scale(0.2); /* Center it vertically and scale down */
+    transform-origin: top right; /* Ensure scaling is relative to the top right for consistency */
     background-color: #f7e948; /* SpongeBob yellow */
-    width: 320px;
+    width: 300px;
     height: auto;
-    margin: 20px auto;
+    margin: 0; /* Remove auto margin to ensure it doesn't affect positioning */
+    z-index: 1000;
 }
+@media (max-width: 768px) {
+    #spongeBobAnimation, .spongebob-animation {
+        /* Hide SpongeBob on smaller screens */
+        display: none;
+    }
+
+}
+
+
+
+
 
 .container-sponge {
     display: flex;

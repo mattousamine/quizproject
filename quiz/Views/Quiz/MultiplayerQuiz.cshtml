@@ -105,7 +105,7 @@
             <span class="close-button" onclick="closeModal()">&times;</span>
             <h2>Your Score is: <span id="scoreValue">0</span> out of 100</h2>
             <!-- Container for the D3 gauge -->
-            <div id="gaugeContainer" style="width: 200px; height: 200px; margin: auto;"></div>
+            <div id="gaugeContainer" style="margin: auto;"></div>
         </div>
     </div>
 
@@ -189,7 +189,7 @@
 
                 var username_ = $('#userInput').val().trim();
                 var quizId_ = parseInt(document.getElementById('quizContainer').getAttribute('data-quiz-id'), 10) || 1;
-                //console.log(quizId_);
+                
 
                 if (!username_ || !quizId_) {
                     // Show error if username or quizId is missing

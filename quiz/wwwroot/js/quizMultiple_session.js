@@ -257,35 +257,39 @@ function drawGauge(scoreValue) {
     // Remove any existing svg to ensure the gauge is redrawn correctly
     d3.select("#gaugeContainer").selectAll("svg").remove();
 
-    var tau = 2 * Math.PI;
-    var width = 200, height = 200, radius = Math.min(width, height) / 2;
+    // Dynamically get the width and height based on the container's current size
+    var gaugeContainer = document.getElementById('gaugeContainer');
+    var width = gaugeContainer.offsetWidth; // Use the width of the container
+    var height = gaugeContainer.offsetHeight; // Use the height of the container
+    var radius = Math.min(width, height) / 2;
     var arc = d3.arc()
-        .innerRadius(radius - 20)
+        .innerRadius(radius - 20) // Adjust the inner radius based on the new dimensions
         .outerRadius(radius)
         .startAngle(0);
 
+    var tau = 2 * Math.PI;
     var svg = d3.select("#gaugeContainer").append("svg")
         .attr("width", width)
         .attr("height", height)
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
+    // Background arc
     var background = svg.append("path")
         .datum({ endAngle: tau })
         .style("fill", "#add8e6")
         .attr("d", arc);
 
+    // Foreground arc for the score
     var score = scoreValue / 100; // Convert scoreValue to a fraction of 100
-
-    // Create the foreground arc but don't set the end angle yet
     var foreground = svg.append("path")
         .datum({ endAngle: score * tau })
         .style("fill", "#0000ff") // Blue color for the score arc
         .attr("d", arc);
 
-    // Animate the foreground arc
+    // Animation for the foreground arc
     foreground.transition()
-        .duration(1500) // animation duration in milliseconds
+        .duration(1500) // Animation duration in milliseconds
         .attrTween("d", function (d) {
             var interpolate = d3.interpolate(d.endAngle, score * tau);
             return function (t) {
@@ -294,15 +298,13 @@ function drawGauge(scoreValue) {
             };
         });
 
-    // Optional: Add text to display the score
-    // You might want to animate this as well
+    // Add and animate score text
     var scoreText = svg.append("text")
         .attr("text-anchor", "middle")
         .attr("dy", "0.35em")
         .attr("class", "scoreText")
-        .text("0"); // Start text at 0
+        .text("0");
 
-    // Animate score text update
     var scoreInterpolate = d3.interpolateRound(0, scoreValue);
     d3.transition().duration(1500).tween("text", function () {
         return function (t) {
@@ -310,7 +312,6 @@ function drawGauge(scoreValue) {
         };
     });
 }
-
 
 function showModal() {
     document.getElementById('scoreModal').style.display = 'block';
@@ -338,7 +339,7 @@ function calculateAndDisplayScore() {
     drawGauge(scoreValue); // Draw the gauge with the score value
     showModal();
 
-    let quizId = sessionStorage.getItem('quizId') ? parseInt(sessionStorage.getItem('quizId'), 10) : 1;
+    let quizId = parseInt(document.getElementById('quizContainer').getAttribute('data-quiz-id'), 10) || 1;
 
     // Call the SaveQuizSession action via AJAX
     saveQuizSession(quizId, scoreValue);

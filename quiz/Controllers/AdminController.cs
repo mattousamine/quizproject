@@ -137,8 +137,8 @@ namespace quiz.Controllers
         [HttpPost]
         public async Task<IActionResult> ProcessMultiplayerQuiz(int quizId, DateTime beginDateTime, DateTime endDateTime)
         {
-            string scheme = Request.Scheme;
-            string host = Request.Host.Value;
+            string scheme = "http";
+            string host = "quizcanada.ca";
             string path = Url.Action("MultiplayerQuiz", "Quiz", new { quizid = quizId });
 
             string fullUrl = $"{scheme}://{host}{path}";
@@ -154,7 +154,7 @@ namespace quiz.Controllers
 
                 // Then, upload the image to Imgur
                 var httpClient = _httpClientFactory.CreateClient();
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Client-ID", "YourClientID");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Client-ID", "b7ec07bb1929918");
                 var imgurUploadRequest = new MultipartFormDataContent();
                 imgurUploadRequest.Add(new ByteArrayContent(imageContent), "image");
 
